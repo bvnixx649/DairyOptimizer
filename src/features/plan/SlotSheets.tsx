@@ -4,7 +4,7 @@ import { Empty } from '../../components/Empty'
 import { Sheet } from '../../components/Sheet'
 import type { Task } from '../../data/types'
 import { agendaFor, freeSlots, roundUp5 } from '../../lib/agenda'
-import { addDays, DAY_NAME, durationText, mins, relativeDay, timeOf, todayKey, weekday } from '../../lib/date'
+import { addDays, DAY_NAME, dueText, durationText, mins, relativeDay, timeOf, todayKey, weekday } from '../../lib/date'
 import { tick, uid } from '../../lib/haptics'
 import { bucketOf, sortTasks, useDoc, useSettings, useSubjects, useTitle } from '../../store/selectors'
 import { live, useStore } from '../../store/store'
@@ -34,7 +34,7 @@ function TaskPick({ task, onPick, trailing, selected }: { task: Task; onPick: ()
               {s.short}
             </span>
           )}
-          {task.due && <span className="m">ส่ง{relativeDay(task.due, today)}</span>}
+          {task.due && <span className="m">{dueText(task.due, today)}</span>}
         </span>
       </span>
       {trailing && <span className="row-trail num">{trailing}</span>}
@@ -54,11 +54,11 @@ export function SlotSheet({ date, start, end }: { date: string; start: string; e
     put('events', { id: uid(), updatedAt: 0, date, start, end: to, title: '', notes: '', taskId: t.id })
     tick(12)
     close()
-    notify(`จองเวลา ${start}–${to}`)
+    notify(`Blocked ${start}–${to}`)
   }
 
   return (
-    <Sheet title={`ว่าง ${start}–${end}`}>
+    <Sheet title={`Free ${start}–${end}`}>
       <p className="muted" style={{ marginTop: -6, marginBottom: 14 }}>
         {relativeDay(date)} · {durationText(length)}
       </p>
@@ -69,14 +69,14 @@ export function SlotSheet({ date, start, end }: { date: string; start: string; e
           ))}
         </div>
       ) : (
-        <Empty icon={CalendarPlus} text="ไม่มีงานค้าง" />
+        <Empty icon={CalendarPlus} text="Nothing open" />
       )}
       <div className="stack" style={{ marginTop: 14 }}>
         <button className="btn btn-quiet btn-block" onClick={() => open({ type: 'quick', mode: 'task', date, start, end })}>
-          <Plus size={18} /> งานใหม่ในช่วงนี้
+          <Plus size={18} /> New task here
         </button>
         <button className="btn btn-quiet btn-block" onClick={() => open({ type: 'event', date, start, end })}>
-          <CalendarPlus size={18} /> นัดหมายในช่วงนี้
+          <CalendarPlus size={18} /> New event here
         </button>
       </div>
     </Sheet>
@@ -109,7 +109,7 @@ export function ScheduleSheet({ taskId }: { taskId: string }) {
   const need = task.duration
 
   return (
-    <Sheet title="จองเวลาว่าง">
+    <Sheet title="Block time">
       <p className="muted" style={{ marginTop: -6, marginBottom: 14 }}>
         {titleOf(task)} · {durationText(need)}
       </p>
@@ -132,7 +132,7 @@ export function ScheduleSheet({ taskId }: { taskId: string }) {
                       if (!task.plan || task.plan > date) useStore.getState().patch('tasks', task.id, { plan: date })
                       tick(12)
                       close()
-                      notify(`จอง ${relativeDay(date, today)} ${s.start}–${to}`)
+                      notify(`Blocked ${relativeDay(date, today)} ${s.start}–${to}`)
                     }}
                   >
                     <span className="num">{s.start}</span>
@@ -156,7 +156,7 @@ export function PickTodaySheet() {
   const candidates = tasks.filter((t) => bucketOf(t, today) !== 'overdue')
 
   return (
-    <Sheet title="เลือกงานมาทำวันนี้">
+    <Sheet title="Pick for today">
       {candidates.length ? (
         <div className="card list">
           {candidates.map((t) => {
@@ -172,13 +172,13 @@ export function PickTodaySheet() {
                   tick(8)
                   patch('tasks', t.id, { plan: on ? null : today })
                 }}
-                trailing={locked ? 'ส่งวันนี้' : undefined}
+                trailing={locked ? 'Due today' : undefined}
               />
             )
           })}
         </div>
       ) : (
-        <Empty icon={CheckIcon} text="ไม่มีงานค้าง" />
+        <Empty icon={CheckIcon} text="Nothing open" />
       )}
     </Sheet>
   )

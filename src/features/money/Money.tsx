@@ -59,7 +59,7 @@ export function Money() {
       .filter((t) => (q ? true : t.date.startsWith(month)))
       .filter((t) => kind === 'all' || t.type === kind)
       .filter((t) => !category || (t.type === 'expense' && t.category === category))
-      .filter((t) => !q || t.note.toLowerCase().includes(q) || t.category.toLowerCase().includes(q) || baht(t.amount).includes(q))
+      .filter((t) => !q || [t.note, t.category, categoryFor(t.type, t.category).label, baht(t.amount)].some((x) => x.toLowerCase().includes(q)))
       .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt)
   }, [doc.txs, month, kind, category, query])
 
@@ -78,25 +78,25 @@ export function Money() {
 
   return (
     <Page
-      title="เงิน"
+      title="Money"
       right={
-        <button className="icon-btn" aria-label="ค้นหารายการ" onClick={() => (setSearching(!searching), setQuery(''))}>
+        <button className="icon-btn" aria-label="Search transactions" onClick={() => (setSearching(!searching), setQuery(''))}>
           {searching ? <X size={19} /> : <Search size={19} />}
         </button>
       }
     >
       <div className="plan-nav">
-        <button className="icon-btn sm plain" aria-label="เดือนก่อน" onClick={() => setMonth(addMonths(month, -1))}>
+        <button className="icon-btn sm plain" aria-label="Previous month" onClick={() => setMonth(addMonths(month, -1))}>
           <ChevronLeft size={20} />
         </button>
         <span className="plan-label">{monthTitle(month)}</span>
-        <button className="icon-btn sm plain" aria-label="เดือนถัดไป" onClick={() => setMonth(addMonths(month, 1))}>
+        <button className="icon-btn sm plain" aria-label="Next month" onClick={() => setMonth(addMonths(month, 1))}>
           <ChevronRight size={20} />
         </button>
         <span style={{ flex: 1 }} />
         {!isCurrent && (
           <button className="chip" onClick={() => setMonth(today.slice(0, 7))}>
-            เดือนนี้
+            This month
           </button>
         )}
       </div>
@@ -106,14 +106,14 @@ export function Money() {
           <div className="card money-hero">
             <div className="mh-top">
               <div>
-                <div className="mg-label">ใช้ไป</div>
+                <div className="mg-label">Spent</div>
                 <div className="mh-amount num">
                   <span className="cur">฿</span>
                   <Counter value={sum.expense} />
                 </div>
               </div>
               <button className="btn btn-primary btn-sm" onClick={() => open({ type: 'quick', mode: 'expense' })}>
-                <Plus size={16} /> รายจ่าย
+                <Plus size={16} /> Expense
               </button>
             </div>
 
@@ -125,19 +125,19 @@ export function Money() {
                     animate={{ width: `${Math.min(100, (sum.expense / budget) * 100)}%` }}
                     style={{ '--c': sum.expense > budget ? 'var(--danger)' : 'var(--accent)' } as CSSProperties}
                   />
-                  {pace !== null && <span className="pace" style={{ left: `${pace}%` }} title="ควรใช้ถึงตรงนี้ ณ วันนี้" />}
+                  {pace !== null && <span className="pace" style={{ left: `${pace}%` }} title="Where spending should be by today" />}
                 </div>
                 <div className="mg-foot">
                   <span>
-                    {left! >= 0 ? 'เหลือ' : 'เกินงบ'} <b className="num">฿{baht(Math.abs(left!))}</b>
-                    <span className="faint"> / ฿{baht(budget)}</span>
+                    <b className="num">฿{baht(Math.abs(left!))}</b> {left! >= 0 ? 'left' : 'over'}
+                    <span className="faint"> of ฿{baht(budget)}</span>
                   </span>
-                  {perDay !== null && <span className="num">วันละ ฿{baht(perDay)}</span>}
+                  {perDay !== null && <span className="num">฿{baht(perDay)}/day</span>}
                 </div>
               </div>
             ) : (
               <button className="link-btn accent" style={{ paddingLeft: 0 }} onClick={() => open({ type: 'budget' })}>
-                ตั้งงบรายเดือน
+                Set a monthly budget
               </button>
             )}
 
@@ -147,15 +147,15 @@ export function Money() {
 
             <div className="mh-stats">
               <div>
-                <span className="mg-label">รายรับ</span>
+                <span className="mg-label">Income</span>
                 <b className="num income">฿{baht(sum.income)}</b>
               </div>
               <div>
-                <span className="mg-label">เก็บออม</span>
+                <span className="mg-label">Saved</span>
                 <b className="num">฿{baht(saved)}</b>
               </div>
               <div>
-                <span className="mg-label">คงเหลือ</span>
+                <span className="mg-label">Net</span>
                 <b className={`num${sum.income - sum.expense - saved < 0 ? ' neg' : ''}`}>
                   {sum.income - sum.expense - saved < 0 ? '−' : ''}฿{baht(sum.income - sum.expense - saved)}
                 </b>
@@ -166,15 +166,15 @@ export function Money() {
           {sum.byCategory.length > 0 && (
             <section className="section">
               <div className="section-h">
-                <h2>หมวด</h2>
+                <h2>Categories</h2>
                 {category && (
                   <button className="link-btn" onClick={() => setCategory(null)}>
-                    ล้างตัวกรอง
+                    Clear filter
                   </button>
                 )}
               </div>
               <div className="card card-pad">
-                <div className="cat-bar" role="img" aria-label="สัดส่วนรายจ่ายตามหมวด">
+                <div className="cat-bar" role="img" aria-label="Spending by category">
                   {sum.byCategory.map((c) => (
                     <motion.i
                       key={c.name}
@@ -199,7 +199,7 @@ export function Money() {
                         <span className="icon-tile sm">
                           <Icon size={16} />
                         </span>
-                        <span className="cr-name">{c.name}</span>
+                        <span className="cr-name">{cat.label}</span>
                         <span className="cr-pct num faint">{Math.round((c.amount / sum.expense) * 100)}%</span>
                         <span className="cr-amt num">฿{baht(c.amount)}</span>
                       </button>
@@ -212,9 +212,9 @@ export function Money() {
 
           <section className="section">
             <div className="section-h">
-              <h2>เป้าหมายเงินเก็บ</h2>
+              <h2>Savings goals</h2>
               <button className="link-btn" onClick={() => open({ type: 'goalEdit' })}>
-                <Plus size={16} /> เป้าหมาย
+                <Plus size={16} /> Goal
               </button>
             </div>
             {goals.length ? (
@@ -234,12 +234,12 @@ export function Money() {
                       </span>
                       <span className="gc-foot">
                         {p.remaining === 0
-                          ? 'ครบแล้ว'
+                          ? 'Reached'
                           : p.daysLeft !== null
                             ? p.daysLeft < 0
-                              ? 'เลยกำหนด'
-                              : `เก็บ ฿${baht(p.perMonth!)}/เดือน`
-                            : `อีก ฿${baht(p.remaining)}`}
+                              ? 'Past deadline'
+                              : `Save ฿${baht(p.perMonth!)}/mo`
+                            : `฿${baht(p.remaining)} to go`}
                       </span>
                     </button>
                   )
@@ -249,10 +249,10 @@ export function Money() {
               <div className="card">
                 <Empty
                   icon={PiggyBank}
-                  text="ตั้งเป้าหมายแล้วดูว่าต้องเก็บเดือนละเท่าไร"
+                  text="Set a goal to see how much to save each month"
                   action={
                     <button className="btn btn-quiet btn-sm" onClick={() => open({ type: 'goalEdit' })}>
-                      <Plus size={16} /> ตั้งเป้าหมาย
+                      <Plus size={16} /> New goal
                     </button>
                   }
                 />
@@ -271,16 +271,16 @@ export function Money() {
                 exit={{ opacity: 0, height: 0, marginBottom: 0 }}
               >
                 <Search size={18} />
-                <input autoFocus placeholder="ค้นหาทุกเดือน: โน้ต หมวด จำนวน" value={query} onChange={(e) => setQuery(e.target.value)} />
+                <input autoFocus placeholder="Search all months: note, category, amount" value={query} onChange={(e) => setQuery(e.target.value)} />
               </motion.label>
             )}
           </AnimatePresence>
           <div className="section-h">
-            <h2>รายการ</h2>
+            <h2>Transactions</h2>
             <div className="chips">
               {(['all', 'expense', 'income'] as const).map((k) => (
                 <button key={k} className="chip small" aria-pressed={kind === k} onClick={() => setKind(k)}>
-                  {{ all: 'ทั้งหมด', expense: 'จ่าย', income: 'รับ' }[k]}
+                  {{ all: 'All', expense: 'Spent', income: 'Income' }[k]}
                 </button>
               ))}
             </div>
@@ -312,7 +312,7 @@ export function Money() {
             </div>
           ) : (
             <div className="card">
-              <Empty icon={Receipt} text={query ? 'ไม่พบรายการ' : 'ยังไม่มีรายการเดือนนี้'} />
+              <Empty icon={Receipt} text={query ? 'Nothing found' : 'Nothing recorded this month'} />
             </div>
           )}
         </section>
@@ -331,12 +331,12 @@ function TxRow({ tx }: { tx: Tx }) {
   return (
     <SwipeRow
       left={{
-        label: 'ลบ',
+        label: 'Delete',
         icon: Trash2,
         color: '#FF5C63',
         run: () => {
           const snaps = remove('txs', [tx.id])
-          notify('ลบรายการแล้ว', () => restore(snaps))
+          notify('Deleted', () => restore(snaps))
         },
       }}
     >
@@ -346,9 +346,9 @@ function TxRow({ tx }: { tx: Tx }) {
         </span>
         <span className="row-main">
           <span className="row-title" style={{ display: 'block' }}>
-            {tx.note || tx.category}
+            {tx.note || cat.label}
           </span>
-          {tx.note && <span className="row-meta">{tx.category}</span>}
+          {tx.note && <span className="row-meta">{cat.label}</span>}
         </span>
         <span className={`tx-amt num${tx.type === 'income' ? ' income' : ''}`}>
           {tx.type === 'income' ? '+' : '−'}฿{baht(tx.amount)}

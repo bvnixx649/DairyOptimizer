@@ -29,35 +29,35 @@ export function TxSheet({ id }: { id: string }) {
   const [note, setNote] = useState(tx?.note ?? '')
   const [date, setDate] = useState(tx?.date ?? todayKey())
   const satang = parseBaht(amount)
-  if (!tx) return <Sheet title="รายการ">ไม่พบรายการนี้แล้ว</Sheet>
+  if (!tx) return <Sheet title="Transaction">This entry no longer exists</Sheet>
   const cats = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
 
   const save = () => {
     if (!satang) return
     put('txs', { ...tx, type, amount: satang, category: cats.some((c) => c.name === category) ? category : cats[0].name, note: note.trim(), date })
     close()
-    notify('บันทึกแล้ว')
+    notify('Saved')
   }
 
   return (
     <Sheet
-      title={<Segmented value={type} onChange={setType} options={[{ value: 'expense', label: 'รายจ่าย' }, { value: 'income', label: 'รายรับ' }]} label="ประเภท" />}
-      label="แก้ไขรายการ"
+      title={<Segmented value={type} onChange={setType} options={[{ value: 'expense', label: 'Expense' }, { value: 'income', label: 'Income' }]} label="Type" />}
+      label="Edit transaction"
       footer={
         <>
           <button
             className="btn btn-danger"
-            aria-label="ลบรายการ"
+            aria-label="Delete transaction"
             onClick={() => {
               const snaps = remove('txs', [tx.id])
               close()
-              notify('ลบรายการแล้ว', () => restore(snaps))
+              notify('Deleted', () => restore(snaps))
             }}
           >
             <Trash2 size={18} />
           </button>
           <button className="btn btn-primary" disabled={!satang} onClick={save}>
-            บันทึก
+            Save
           </button>
         </>
       }
@@ -71,12 +71,12 @@ export function TxSheet({ id }: { id: string }) {
         <div className="prop-list">
           <label className="prop">
             <CalendarDays size={18} />
-            <span className="prop-label">วันที่</span>
+            <span className="prop-label">Date</span>
             <input type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
           </label>
         </div>
         <label className="field">
-          <input placeholder="โน้ต" value={note} maxLength={150} onChange={(e) => setNote(e.target.value)} />
+          <input placeholder="Note" value={note} maxLength={150} onChange={(e) => setNote(e.target.value)} />
         </label>
         <AmountPad value={amount} onChange={setAmount} onSubmit={save} />
       </div>
@@ -92,7 +92,7 @@ export function BudgetSheet() {
   const satang = parseBaht(amount)
   return (
     <Sheet
-      title="งบรายเดือน"
+      title="Monthly budget"
       footer={
         <>
           {settings.budget && (
@@ -103,7 +103,7 @@ export function BudgetSheet() {
                 close()
               }}
             >
-              ไม่ตั้งงบ
+              No budget
             </button>
           )}
           <button
@@ -112,10 +112,10 @@ export function BudgetSheet() {
             onClick={() => {
               updateSettings({ budget: satang })
               close()
-              notify(`งบเดือนละ ฿${baht(satang!)}`)
+              notify(`Budget ฿${baht(satang!)} a month`)
             }}
           >
-            บันทึก
+            Save
           </button>
         </>
       }
@@ -142,7 +142,7 @@ export function GoalSheet({ id }: { id: string }) {
   const [mode, setMode] = useState<'in' | 'out'>('in')
   const [amount, setAmount] = useState('')
   const entries = useMemo(() => live(doc.goalEntries).filter((e) => e.goalId === id).sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt - a.updatedAt), [doc.goalEntries, id])
-  if (!goal) return <Sheet title="เป้าหมาย">ไม่พบเป้าหมายนี้แล้ว</Sheet>
+  if (!goal) return <Sheet title="Goal">This goal no longer exists</Sheet>
   const p = goalProgress(goal, doc.goalEntries, today)
   const satang = parseBaht(amount)
 
@@ -153,7 +153,7 @@ export function GoalSheet({ id }: { id: string }) {
     put('goalEntries', { id: uid(), updatedAt: 0, goalId: id, amount: value, date: today, note: '' })
     tick(14)
     setAmount('')
-    notify(mode === 'in' ? `เก็บเพิ่ม ฿${baht(value)}` : `ถอน ฿${baht(-value)}`)
+    notify(mode === 'in' ? `Added ฿${baht(value)}` : `Withdrew ฿${baht(-value)}`)
   }
 
   return (
@@ -162,7 +162,7 @@ export function GoalSheet({ id }: { id: string }) {
       label={goal.name}
       title=" "
       actions={
-        <button className="icon-btn sm" aria-label="แก้ไขเป้าหมาย" onClick={() => open({ type: 'goalEdit', id })}>
+        <button className="icon-btn sm" aria-label="Edit goal" onClick={() => open({ type: 'goalEdit', id })}>
           <Pencil size={16} />
         </button>
       }
@@ -177,23 +177,23 @@ export function GoalSheet({ id }: { id: string }) {
         </p>
         <p className="muted gh-plan">
           {p.remaining === 0
-            ? 'ถึงเป้าแล้ว'
+            ? 'Goal reached'
             : goal.deadline
               ? p.daysLeft! < 0
-                ? `เลยกำหนด ${shortDate(goal.deadline)} · ขาดอีก ฿${baht(p.remaining)}`
-                : `อีก ${p.daysLeft} วัน · เก็บเดือนละ ฿${baht(p.perMonth!)} ถึงจะทัน`
-              : `ขาดอีก ฿${baht(p.remaining)}`}
+                ? `Deadline ${shortDate(goal.deadline)} passed · ฿${baht(p.remaining)} short`
+                : `${p.daysLeft} days left · save ฿${baht(p.perMonth!)} a month to make it`
+              : `฿${baht(p.remaining)} to go`}
         </p>
       </div>
 
       <div className="goal-entry">
-        <Segmented value={mode} onChange={setMode} options={[{ value: 'in', label: 'เก็บเพิ่ม' }, { value: 'out', label: 'ถอนออก' }]} label="ประเภท" />
+        <Segmented value={mode} onChange={setMode} options={[{ value: 'in', label: 'Add' }, { value: 'out', label: 'Withdraw' }]} label="Type" />
         <div className="ge-row">
           <label className="field ge-input">
             <span className="cur">฿</span>
             <input inputMode="decimal" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ''))} onKeyDown={(e) => e.key === 'Enter' && add()} />
           </label>
-          <button className="btn btn-primary" disabled={!satang} onClick={add} aria-label="บันทึก">
+          <button className="btn btn-primary" disabled={!satang} onClick={add} aria-label="Save">
             {mode === 'in' ? <Plus size={20} /> : <Minus size={20} />}
           </button>
         </div>
@@ -209,19 +209,19 @@ export function GoalSheet({ id }: { id: string }) {
       {entries.length > 0 && (
         <>
           <div className="q-label" style={{ marginTop: 22 }}>
-            ประวัติ
+            History
           </div>
           <div className="card list">
             {entries.map((e) => (
               <SwipeRow
                 key={e.id}
                 left={{
-                  label: 'ลบ',
+                  label: 'Delete',
                   icon: Trash2,
                   color: '#FF5C63',
                   run: () => {
                     const snaps = remove('goalEntries', [e.id])
-                    notify('ลบรายการแล้ว', () => restore(snaps))
+                    notify('Deleted', () => restore(snaps))
                   },
                 }}
               >
@@ -268,51 +268,51 @@ export function GoalEditSheet({ id }: { id?: string }) {
     }
     put('goals', g)
     close()
-    notify(existing ? 'บันทึกแล้ว' : 'ตั้งเป้าหมายแล้ว')
+    notify(existing ? 'Saved' : 'Goal created')
   }
 
   return (
     <Sheet
-      title={existing ? 'แก้ไขเป้าหมาย' : 'เป้าหมายใหม่'}
+      title={existing ? 'Edit goal' : 'New goal'}
       footer={
         <>
           {existing && (
             <button
               className="btn btn-danger"
-              aria-label="ลบเป้าหมาย"
+              aria-label="Delete goal"
               onClick={() => {
                 const entries = doc.goalEntries.filter((e) => e.goalId === existing.id && !e.deleted).map((e) => e.id)
                 const snaps = [...remove('goals', [existing.id]), ...remove('goalEntries', entries)]
                 close(2)
-                notify('ลบเป้าหมายแล้ว', () => restore(snaps))
+                notify('Goal deleted', () => restore(snaps))
               }}
             >
               <Trash2 size={18} />
             </button>
           )}
           <button className="btn btn-primary" disabled={!valid} onClick={save}>
-            บันทึก
+            Save
           </button>
         </>
       }
     >
       <div className="stack">
-        <input className="big-input" autoFocus={!existing} placeholder="เก็บเงินเพื่ออะไร" value={name} maxLength={100} onChange={(e) => setName(e.target.value)} />
+        <input className="big-input" autoFocus={!existing} placeholder="Saving for…" value={name} maxLength={100} onChange={(e) => setName(e.target.value)} />
         <label className="field">
-          <span className="field-label">เป้าหมาย (บาท)</span>
+          <span className="field-label">Target (฿)</span>
           <input inputMode="decimal" placeholder="10,000" value={target} onChange={(e) => setTarget(e.target.value.replace(/[^\d.]/g, ''))} />
         </label>
         <label className="field">
-          <span className="field-label">ภายในวันที่ (ไม่ใส่ก็ได้)</span>
+          <span className="field-label">By (optional)</span>
           <input type="date" value={deadline} min={todayKey()} onChange={(e) => setDeadline(e.target.value)} />
         </label>
         {satang && deadline && (
           <p className="muted" style={{ fontSize: 14 }}>
-            ต้องเก็บเดือนละ ฿{baht(goalProgress({ ...(existing ?? ({} as Goal)), id: '_', target: satang, deadline } as Goal, [], todayKey()).perMonth ?? 0)} ถึง {monthTitle(deadline.slice(0, 7))}
+            Save ฿{baht(goalProgress({ ...(existing ?? ({} as Goal)), id: '_', target: satang, deadline } as Goal, [], todayKey()).perMonth ?? 0)} a month until {monthTitle(deadline.slice(0, 7))}
           </p>
         )}
         <div>
-          <div className="q-label">สี</div>
+          <div className="q-label">Colour</div>
           <div className="color-pick">
             {PALETTE.map((c) => (
               <button key={c} type="button" aria-pressed={color === c} aria-label={c} style={{ '--c': c } as CSSProperties} onClick={() => setColor(c)} />

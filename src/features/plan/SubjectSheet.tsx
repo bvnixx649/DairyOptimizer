@@ -22,7 +22,7 @@ export function SubjectSheet({ id }: { id: string }) {
   const openTasks = tasks.filter((t) => !t.doneAt).sort(sortTasks)
   const doneCount = tasks.length - openTasks.length
 
-  if (!s) return <Sheet title="วิชา">ไม่พบวิชานี้</Sheet>
+  if (!s) return <Sheet title="Subject">Subject not found</Sheet>
 
   return (
     <Sheet
@@ -30,7 +30,7 @@ export function SubjectSheet({ id }: { id: string }) {
       label={s.name}
       title={<span className="sheet-kicker num">{s.code}</span>}
       actions={
-        <button className="icon-btn sm" aria-label="แก้ไขวิชา" onClick={() => open({ type: 'subjectEdit', id })}>
+        <button className="icon-btn sm" aria-label="Edit subject" onClick={() => open({ type: 'subjectEdit', id })}>
           <Pencil size={16} />
         </button>
       }
@@ -42,7 +42,7 @@ export function SubjectSheet({ id }: { id: string }) {
       </div>
 
       <div className="q-label" style={{ marginTop: 22 }}>
-        เวลาเรียน
+        Classes
       </div>
       <div className="prop-list">
         {classes.map((c) => (
@@ -56,15 +56,15 @@ export function SubjectSheet({ id }: { id: string }) {
         ))}
         <button className="prop accent-prop" onClick={() => open({ type: 'classEdit', subjectId: id })}>
           <Plus size={18} />
-          <span className="prop-label">เพิ่มคาบ</span>
+          <span className="prop-label">Add class</span>
         </button>
       </div>
 
       <div className="section-h" style={{ marginTop: 22 }}>
         <h2 style={{ fontSize: 16 }}>
-          งาน<span className="count num">{openTasks.length || ''}</span>
+          Tasks<span className="count num">{openTasks.length || ''}</span>
         </h2>
-        {doneCount > 0 && <span className="faint" style={{ fontSize: 14 }}>เสร็จแล้ว {doneCount}</span>}
+        {doneCount > 0 && <span className="faint" style={{ fontSize: 14 }}>{doneCount} done</span>}
       </div>
       {openTasks.length > 0 && (
         <div className="card list">
@@ -74,7 +74,7 @@ export function SubjectSheet({ id }: { id: string }) {
         </div>
       )}
       <button className="add-inline" style={{ marginTop: 10 }} onClick={() => open({ type: 'quick', mode: 'task', subjectId: id })}>
-        <Plus size={18} /> งานของวิชานี้
+        <Plus size={18} /> Task for this subject
       </button>
     </Sheet>
   )

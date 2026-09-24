@@ -32,7 +32,8 @@
   --kb: 0px;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --font: 'Anuphan Variable', 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Geist for Latin and digits; Thai text (your own entries) falls back to Anuphan. */
+  --font: 'Geist Variable', 'Anuphan Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-num: 'Geist Variable', 'Anuphan Variable', system-ui, sans-serif;
 
   color-scheme: dark;

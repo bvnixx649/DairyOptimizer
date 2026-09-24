@@ -61,12 +61,12 @@ export function Tasks() {
 
   return (
     <Page
-      title="งาน"
-      sub={openCount ? `ค้าง ${openCount} งาน` : undefined}
+      title="Tasks"
+      sub={openCount ? `${openCount} open` : undefined}
       right={
         <button
           className="icon-btn"
-          aria-label="ค้นหา"
+          aria-label="Search"
           aria-pressed={searching}
           onClick={() => {
             setSearching(!searching)
@@ -86,14 +86,14 @@ export function Tasks() {
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
           >
             <Search size={18} />
-            <input autoFocus placeholder="ค้นหางาน วิชา หรือโน้ต" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <input autoFocus placeholder="Search tasks, subjects, notes" value={query} onChange={(e) => setQuery(e.target.value)} />
           </motion.label>
         )}
       </AnimatePresence>
 
-      <div className="chips scroll-x filter-row" role="group" aria-label="กรองงาน">
+      <div className="chips scroll-x filter-row" role="group" aria-label="Filter tasks">
         <button className="chip" aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>
-          ทั้งหมด
+          All
         </button>
         {subjects.map((s) => (
           <button key={s.id} className="chip tone" aria-pressed={filter === s.id} style={{ '--c': s.color } as CSSProperties} onClick={() => setFilter(filter === s.id ? 'all' : s.id)}>
@@ -102,7 +102,7 @@ export function Tasks() {
           </button>
         ))}
         <button className="chip" aria-pressed={filter === 'private'} onClick={() => setFilter(filter === 'private' ? 'all' : 'private')}>
-          <Lock size={14} /> ส่วนตัว
+          <Lock size={14} /> Private
         </button>
       </div>
 
@@ -110,14 +110,14 @@ export function Tasks() {
         <div className="card" style={{ marginTop: 16 }}>
           <Empty
             icon={CircleCheckBig}
-            text={query ? 'ไม่พบงานที่ค้นหา' : 'ไม่มีงานค้าง'}
+            text={query ? 'No matching tasks' : 'Nothing open'}
             action={
               !query && (
                 <button
                   className="btn btn-quiet btn-sm"
                   onClick={() => open({ type: 'quick', mode: 'task', subjectId: filter !== 'all' && filter !== 'private' ? filter : undefined })}
                 >
-                  <Plus size={16} /> เพิ่มงาน
+                  <Plus size={16} /> Add task
                 </button>
               )
             }
@@ -149,7 +149,7 @@ export function Tasks() {
             <section className="section task-group">
               <button className="section-h done-toggle" onClick={() => setShowDone(!showDone)} aria-expanded={showDone}>
                 <h2 className="muted">
-                  เสร็จแล้ว<span className="count num">{done.length}</span>
+                  Done<span className="count num">{done.length}</span>
                 </h2>
                 <motion.span animate={{ rotate: showDone ? 180 : 0 }}>
                   <ChevronDown size={18} className="muted" />

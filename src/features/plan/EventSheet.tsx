@@ -54,7 +54,7 @@ export function EventForm({ id, date, start, end }: Props) {
     }
     put('events', ev)
     close()
-    notify(existing ? 'บันทึกแล้ว' : `เพิ่มนัด ${relativeDay(day, today)} ${from}`)
+    notify(existing ? 'Saved' : `Event added · ${relativeDay(day, today)} ${from}`)
   }
 
   return (
@@ -67,38 +67,38 @@ export function EventForm({ id, date, start, end }: Props) {
     >
       {task ? (
         <div className="big-input" style={{ color: 'var(--text-2)' }}>
-          เวลาทำ: <span style={{ color: 'var(--text)' }}>{titleOf(task)}</span>
+          Working on <span style={{ color: 'var(--text)' }}>{titleOf(task)}</span>
         </div>
       ) : (
-        <input className="big-input" autoFocus={!existing} placeholder="นัดอะไร" value={title} maxLength={180} onChange={(e) => setTitle(e.target.value)} />
+        <input className="big-input" autoFocus={!existing} placeholder="What’s happening?" value={title} maxLength={180} onChange={(e) => setTitle(e.target.value)} />
       )}
 
       <div className="prop-list">
         <label className="prop">
           <CalendarDays size={18} />
-          <span className="prop-label">วัน</span>
+          <span className="prop-label">Date</span>
           <input type="date" value={day} onChange={(e) => e.target.value && setDay(e.target.value)} />
         </label>
         <label className="prop">
           <Clock3 size={18} />
-          <span className="prop-label">เริ่ม</span>
+          <span className="prop-label">Start</span>
           <input type="time" value={from} onChange={(e) => e.target.value && setFrom(e.target.value)} />
         </label>
         <label className="prop">
           <Clock3 size={18} style={{ opacity: 0 }} />
-          <span className="prop-label">ถึง</span>
+          <span className="prop-label">End</span>
           <input type="time" value={to} onChange={(e) => e.target.value && setTo(e.target.value)} />
         </label>
       </div>
 
-      {from >= to && <div className="note warn">เวลาจบต้องหลังเวลาเริ่ม</div>}
+      {from >= to && <div className="note warn">End must be after start</div>}
       {conflicts.length > 0 && (
         <div className="note warn">
           <AlertTriangle size={16} />
           <span>
-            ชนกับ{' '}
+            Overlaps{' '}
             {conflicts
-              .map((c) => (c.kind === 'class' ? byId.get(c.slot.subjectId)?.short : c.event.taskId ? 'เวลาทำงาน' : c.event.title))
+              .map((c) => (c.kind === 'class' ? byId.get(c.slot.subjectId)?.short : c.event.taskId ? 'task time' : c.event.title))
               .join(', ')}{' '}
             ({conflicts[0].start}–{conflicts[0].end})
           </span>
@@ -107,7 +107,7 @@ export function EventForm({ id, date, start, end }: Props) {
 
       {!task && (
         <label className="field">
-          <textarea placeholder="สถานที่ / รายละเอียด" value={notes} rows={2} onChange={(e) => setNotes(e.target.value)} />
+          <textarea placeholder="Place / details" value={notes} rows={2} onChange={(e) => setNotes(e.target.value)} />
         </label>
       )}
 
@@ -116,18 +116,18 @@ export function EventForm({ id, date, start, end }: Props) {
           <button
             type="button"
             className="btn btn-danger"
-            aria-label="ลบ"
+            aria-label="Delete"
             onClick={() => {
               const snaps = remove('events', [existing.id])
               close()
-              notify(task ? 'ยกเลิกเวลาที่จองแล้ว' : 'ลบนัดแล้ว', () => restore(snaps))
+              notify(task ? 'Time block removed' : 'Event deleted', () => restore(snaps))
             }}
           >
             <Trash2 size={18} />
           </button>
         )}
         <button className="btn btn-primary btn-block" style={{ flex: 1 }} disabled={!valid}>
-          {conflicts.length ? 'บันทึกแม้เวลาชน' : existing ? 'บันทึก' : 'เพิ่มนัดหมาย'}
+          {conflicts.length ? 'Save anyway' : existing ? 'Save' : 'Add event'}
         </button>
       </div>
     </form>
@@ -137,7 +137,7 @@ export function EventForm({ id, date, start, end }: Props) {
 export function EventSheet(props: Props) {
   const ev = useDoc().events.find((e) => e.id === props.id)
   return (
-    <Sheet title={ev?.taskId ? 'เวลาที่จองไว้' : props.id ? 'นัดหมาย' : 'นัดหมายใหม่'}>
+    <Sheet title={ev?.taskId ? 'Time block' : props.id ? 'Event' : 'New event'}>
       <EventForm {...props} />
     </Sheet>
   )

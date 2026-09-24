@@ -74,7 +74,7 @@ export function WeekGrid({ start, today, minute, selected, onSelect }: Props) {
                 key={h}
                 className="week-cell"
                 style={{ top: y(h * 60), height: hourPx }}
-                aria-label={`เพิ่มนัด ${date} ${h}:00`}
+                aria-label={`New event ${date} ${h}:00`}
                 onClick={() => open({ type: 'event', date, start: timeOf(h * 60), end: timeOf(h * 60 + 60) })}
               />
             ))}

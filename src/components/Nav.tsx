@@ -6,11 +6,11 @@ import { LogoMark, Logo } from './Logo'
 import { useWide } from '../lib/useMedia'
 
 const ITEMS: { tab: Tab; label: string; icon: LucideIcon }[] = [
-  { tab: 'today', label: 'วันนี้', icon: Sun },
-  { tab: 'tasks', label: 'งาน', icon: ListTodo },
-  { tab: 'plan', label: 'ตาราง', icon: CalendarDays },
-  { tab: 'habits', label: 'นิสัย', icon: Repeat },
-  { tab: 'money', label: 'เงิน', icon: Wallet },
+  { tab: 'today', label: 'Today', icon: Sun },
+  { tab: 'tasks', label: 'Tasks', icon: ListTodo },
+  { tab: 'plan', label: 'Schedule', icon: CalendarDays },
+  { tab: 'habits', label: 'Habits', icon: Repeat },
+  { tab: 'money', label: 'Money', icon: Wallet },
 ]
 
 const QUICK_FOR: Record<Tab, QuickMode> = { today: 'task', tasks: 'task', plan: 'event', habits: 'task', money: 'expense' }
@@ -35,7 +35,7 @@ function useNav() {
 export function TabBar() {
   const { tab, go, add } = useNav()
   return (
-    <nav className="tabbar" aria-label="เมนูหลัก">
+    <nav className="tabbar" aria-label="Main">
       <div className="tabbar-pill">
         {ITEMS.map(({ tab: t, label, icon: Icon }) => (
           <button key={t} className="tab" aria-current={t === tab ? 'page' : undefined} onClick={() => go(t)}>
@@ -45,7 +45,7 @@ export function TabBar() {
           </button>
         ))}
       </div>
-      <button className="fab" onClick={add} aria-label="เพิ่ม">
+      <button className="fab" onClick={add} aria-label="Add">
         <Plus size={26} strokeWidth={2.4} />
       </button>
     </nav>
@@ -56,7 +56,7 @@ export function Rail() {
   const { tab, go, add } = useNav()
   const wide = useWide()
   return (
-    <nav className="rail" aria-label="เมนูหลัก">
+    <nav className="rail" aria-label="Main">
       <div className="rail-logo">{wide ? <Logo /> : <LogoMark size={30} />}</div>
       {ITEMS.map(({ tab: t, label, icon: Icon }) => (
         <button key={t} className="rail-item" aria-current={t === tab ? 'page' : undefined} onClick={() => go(t)}>
@@ -65,9 +65,9 @@ export function Rail() {
           <span>{label}</span>
         </button>
       ))}
-      <button className="fab rail-add" onClick={add} aria-label="เพิ่ม">
+      <button className="fab rail-add" onClick={add} aria-label="Add">
         <Plus size={24} strokeWidth={2.4} />
-        <span className="label">เพิ่ม</span>
+        <span className="label">New</span>
       </button>
       <div className="grow" />
     </nav>

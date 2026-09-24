@@ -60,13 +60,13 @@ export function Today() {
 
   return (
     <Page
-      title="วันนี้"
-      kicker={`${DAY_NAME[weekday(today)]} ${shortDate(today)}`}
+      title="Today"
+      kicker={`${DAY_NAME[weekday(today)]}, ${shortDate(today)}`}
       glow
       right={
         <>
           <SyncDot />
-          <button className="icon-btn" aria-label="ตั้งค่า" onClick={() => open({ type: 'settings' })}>
+          <button className="icon-btn" aria-label="Settings" onClick={() => open({ type: 'settings' })}>
             <Settings2 size={19} />
           </button>
         </>
@@ -88,20 +88,20 @@ export function Today() {
           <section className="section">
             <div className="section-h">
               <h2>
-                ต้องทำ<span className="count num">{todays.length || ''}</span>
+                To do<span className="count num">{todays.length || ''}</span>
               </h2>
               <button className="link-btn" onClick={() => open({ type: 'pickToday' })}>
-                <Plus size={16} /> เลือกงาน
+                <Plus size={16} /> Pick
               </button>
             </div>
             {todays.length + finishedToday.length === 0 ? (
               <div className="card">
                 <Empty
                   icon={CircleCheckBig}
-                  text="ไม่มีงานสำหรับวันนี้"
+                  text="Nothing planned for today"
                   action={
                     <button className="btn btn-quiet btn-sm" onClick={() => open({ type: 'quick', mode: 'task', date: today })}>
-                      <Plus size={16} /> เพิ่มงาน
+                      <Plus size={16} /> Add task
                     </button>
                   }
                 />
@@ -122,9 +122,9 @@ export function Today() {
           {upcoming.length > 0 && (
             <section className="section">
               <div className="section-h">
-                <h2>ใกล้ถึงกำหนด</h2>
+                <h2>Coming up</h2>
                 <button className="link-btn" onClick={() => setTab('tasks')}>
-                  ทั้งหมด <ArrowUpRight size={16} />
+                  All <ArrowUpRight size={16} />
                 </button>
               </div>
               <div className="card list">
@@ -139,16 +139,16 @@ export function Today() {
         <div className="today-side">
           <section className="section">
             <div className="section-h">
-              <h2>นิสัย</h2>
+              <h2>Habits</h2>
               <button className="link-btn" onClick={() => setTab('habits')}>
-                ทั้งหมด <ArrowUpRight size={16} />
+                All <ArrowUpRight size={16} />
               </button>
             </div>
             <div className="card habit-strip">
               {habits.length ? (
                 habits.map((h) => <HabitButton key={h.id} habit={h} today={today} size={60} />)
               ) : (
-                <Empty icon={Plus} text="ยังไม่มีนิสัยที่ติดตาม" />
+                <Empty icon={Plus} text="No habits yet" />
               )}
             </div>
           </section>
@@ -174,13 +174,13 @@ function NowCard({ agenda, today, minute, onOpenPlan }: { agenda: AgendaItem[]; 
   const describe = (i: AgendaItem) => {
     if (i.kind === 'class') {
       const s = byId.get(i.slot.subjectId)
-      return { title: s?.name ?? 'วิชาเรียน', color: s?.color ?? '#8FA3BF', place: i.slot.room, onClick: () => s && open({ type: 'subject', id: s.id }) }
+      return { title: s?.name ?? 'Class', color: s?.color ?? '#8FA3BF', place: i.slot.room, onClick: () => s && open({ type: 'subject', id: s.id }) }
     }
     const task = i.event.taskId ? doc.tasks.find((t) => t.id === i.event.taskId) : undefined
     return {
       title: task ? titleOf(task) : i.event.title,
       color: task ? '#FF8059' : '#8FA3BF',
-      place: task ? 'เวลาทำงาน' : i.event.notes.split('\n')[0],
+      place: task ? 'Task time' : i.event.notes.split('\n')[0],
       onClick: () => (task ? open({ type: 'task', id: task.id }) : open({ type: 'event', id: i.event.id })),
     }
   }
@@ -196,7 +196,7 @@ function NowCard({ agenda, today, minute, onOpenPlan }: { agenda: AgendaItem[]; 
           <span className="now-bar" />
           <span className="now-text">
             <span className="now-label">
-              {current ? `ตอนนี้ · เหลือ ${durationText(mins(focus.end) - minute)}` : `ถัดไป · อีก ${durationText(mins(focus.start) - minute)}`}
+              {current ? `Now · ${durationText(mins(focus.end) - minute)} left` : `Next · in ${durationText(mins(focus.start) - minute)}`}
             </span>
             <span className="now-title">{info.title}</span>
             <span className="now-meta num">
@@ -215,10 +215,10 @@ function NowCard({ agenda, today, minute, onOpenPlan }: { agenda: AgendaItem[]; 
       ) : (
         <div className="now-item idle">
           <span className="now-text">
-            <span className="now-title">ว่างตลอดที่เหลือของวัน</span>
+            <span className="now-title">Free for the rest of the day</span>
             {tomorrow && (
               <span className="now-meta">
-                พรุ่งนี้ {tomorrow.start} ·{' '}
+                Tomorrow {tomorrow.start} ·{' '}
                 {tomorrow.kind === 'class' ? byId.get(tomorrow.slot.subjectId)?.short : tomorrow.event.title}
               </span>
             )}
@@ -229,7 +229,7 @@ function NowCard({ agenda, today, minute, onOpenPlan }: { agenda: AgendaItem[]; 
         <button className="slot-chip" onClick={() => open({ type: 'slot', date: today, start: slot.start, end: slot.end })}>
           <CalendarPlus size={16} />
           <span>
-            ว่าง <span className="num">{slot.start}–{slot.end}</span>
+            Free <span className="num">{slot.start}–{slot.end}</span>
           </span>
           <span className="faint">{durationText(slot.minutes)}</span>
         </button>
@@ -250,19 +250,19 @@ function MoneyGlance({ today, onOpen }: { today: string; onOpen: () => void }) {
   return (
     <section className="section">
       <div className="section-h">
-        <h2>เงินเดือนนี้</h2>
+        <h2>This month</h2>
         <button className="link-btn" onClick={onOpen}>
-          ดู <ArrowUpRight size={16} />
+          Open <ArrowUpRight size={16} />
         </button>
       </div>
       <div className="card card-pad money-glance">
         <div className="mg-row">
           <div>
-            <div className="mg-label">ใช้ไป</div>
+            <div className="mg-label">Spent</div>
             <div className="mg-amount num">฿{baht(sum.expense)}</div>
           </div>
           <button className="btn btn-quiet btn-sm" onClick={() => open({ type: 'quick', mode: 'expense' })}>
-            <Plus size={16} /> รายจ่าย
+            <Plus size={16} /> Expense
           </button>
         </div>
         {budget ? (
@@ -276,16 +276,16 @@ function MoneyGlance({ today, onOpen }: { today: string; onOpen: () => void }) {
             </div>
             <div className="mg-foot">
               <span>
-                {sum.expense > budget ? 'เกินงบ' : 'เหลือ'} <b className="num">฿{baht(Math.abs(budget - sum.expense))}</b>
+                <b className="num">฿{baht(Math.abs(budget - sum.expense))}</b> {sum.expense > budget ? 'over budget' : 'left'}
               </span>
-              <span className="num">วันนี้ ฿{baht(spentToday)}</span>
+              <span className="num">Today ฿{baht(spentToday)}</span>
             </div>
           </>
         ) : (
           <div className="mg-foot">
-            <span className="num">วันนี้ ฿{baht(spentToday)}</span>
+            <span className="num">Today ฿{baht(spentToday)}</span>
             <button className="link-btn accent" onClick={() => open({ type: 'budget' })}>
-              ตั้งงบรายเดือน
+              Set a budget
             </button>
           </div>
         )}

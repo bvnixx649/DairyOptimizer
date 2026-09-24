@@ -55,9 +55,10 @@ export const seedClasses = (): ClassSlot[] =>
 export const seedHabits = (createdAt: string): Habit[] => [
   {
     id: 'habit-phone-away',
-    updatedAt: SEED_TIME,
-    title: 'วางมือถือให้ไกล',
-    cue: 'ก่อนเริ่มงานหรือเรียน',
+    // 2 so the English seed replaces an untouched Thai seed from an earlier install.
+    updatedAt: 2,
+    title: 'Phone out of reach',
+    cue: 'Before studying or working',
     mode: 'context',
     days: [0, 1, 2, 3, 4, 5, 6],
     icon: 'vibrate-off',
@@ -68,9 +69,9 @@ export const seedHabits = (createdAt: string): Habit[] => [
   },
   {
     id: 'habit-think-before-buy',
-    updatedAt: SEED_TIME,
-    title: 'คิดก่อนซื้อ',
-    cue: 'เมื่อมีของที่อยากได้',
+    updatedAt: 2,
+    title: 'Think before buying',
+    cue: 'When I want something',
     mode: 'context',
     days: [0, 1, 2, 3, 4, 5, 6],
     icon: 'shopping-bag',
@@ -107,7 +108,9 @@ export const seedDoc = (today: string): Doc => ({
 })
 
 export interface Category {
+  /** Stored on transactions; kept in Thai so backups from the old app still match. */
   name: string
+  label: string
   icon: string
   color: string
 }
@@ -115,27 +118,28 @@ export interface Category {
 // Category colours: the dark-surface categorical palette (validated for colour-vision
 // separation), assigned per category so a colour always means the same thing.
 export const EXPENSE_CATEGORIES: Category[] = [
-  { name: 'อาหาร', icon: 'utensils', color: '#d95926' },
-  { name: 'เดินทาง', icon: 'bus', color: '#3987e5' },
-  { name: 'เรียน', icon: 'graduation-cap', color: '#9085e9' },
-  { name: 'ช้อปปิ้ง', icon: 'shopping-bag', color: '#d55181' },
-  { name: 'บันเทิง', icon: 'gamepad', color: '#e66767' },
-  { name: 'สุขภาพ', icon: 'heart-pulse', color: '#199e70' },
-  { name: 'ค่าที่พัก', icon: 'house', color: '#c98500' },
-  { name: 'บิล', icon: 'receipt', color: '#008300' },
-  { name: 'อื่น ๆ', icon: 'package', color: '#6b6966' },
+  { name: 'อาหาร', label: 'Food', icon: 'utensils', color: '#d95926' },
+  { name: 'เดินทาง', label: 'Transport', icon: 'bus', color: '#3987e5' },
+  { name: 'เรียน', label: 'Study', icon: 'graduation-cap', color: '#9085e9' },
+  { name: 'ช้อปปิ้ง', label: 'Shopping', icon: 'shopping-bag', color: '#d55181' },
+  { name: 'บันเทิง', label: 'Fun', icon: 'gamepad', color: '#e66767' },
+  { name: 'สุขภาพ', label: 'Health', icon: 'heart-pulse', color: '#199e70' },
+  { name: 'ค่าที่พัก', label: 'Housing', icon: 'house', color: '#c98500' },
+  { name: 'บิล', label: 'Bills', icon: 'receipt', color: '#008300' },
+  { name: 'อื่น ๆ', label: 'Other', icon: 'package', color: '#6b6966' },
 ]
 
 export const INCOME_CATEGORIES: Category[] = [
-  { name: 'ค่าขนม', icon: 'hand-coins', color: '#3987e5' },
-  { name: 'เงินเดือน', icon: 'briefcase', color: '#9085e9' },
-  { name: 'งานเสริม', icon: 'laptop', color: '#199e70' },
-  { name: 'อื่น ๆ', icon: 'coins', color: '#6b6966' },
+  { name: 'ค่าขนม', label: 'Allowance', icon: 'hand-coins', color: '#3987e5' },
+  { name: 'เงินเดือน', label: 'Salary', icon: 'briefcase', color: '#9085e9' },
+  { name: 'งานเสริม', label: 'Side job', icon: 'laptop', color: '#199e70' },
+  { name: 'อื่น ๆ', label: 'Other', icon: 'coins', color: '#6b6966' },
 ]
 
 export const categoryFor = (type: 'income' | 'expense', name: string): Category =>
   (type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).find((c) => c.name === name) ?? {
     name,
+    label: name,
     icon: 'package',
     color: '#6b6966',
   }

@@ -42,7 +42,7 @@ export function HabitButton({ habit, today, size = 64 }: Props) {
       <motion.button
         className={`habit-orb${isDone ? ' on' : ''}`}
         aria-pressed={isDone}
-        aria-label={`${habit.title}${isDone ? ' (ทำแล้ววันนี้)' : ''}`}
+        aria-label={`${habit.title}${isDone ? ' (done today)' : ''}`}
         whileTap={{ scale: 0.9 }}
         onPointerDown={startPress}
         onPointerUp={endPress}
@@ -68,10 +68,10 @@ export function HabitButton({ habit, today, size = 64 }: Props) {
         {run > 0 ? (
           <>
             <Flame size={12} />
-            {run} {habit.mode === 'context' ? 'สัปดาห์' : 'วัน'}
+            {run} {habit.mode === 'context' ? (run === 1 ? 'week' : 'weeks') : run === 1 ? 'day' : 'days'}
           </>
         ) : (
-          <span className="faint">{habit.mode === 'context' ? 'เมื่อมีโอกาส' : 'เริ่มวันนี้'}</span>
+          <span className="faint">{habit.mode === 'context' ? 'When it comes up' : 'Start today'}</span>
         )}
       </span>
     </div>

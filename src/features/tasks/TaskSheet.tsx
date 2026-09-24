@@ -20,7 +20,7 @@ export function TaskSheet({ id }: { id: string }) {
   const doc = useDoc()
   const task = doc.tasks.find((t) => t.id === id && !t.deleted)
   const secret = useTaskSecret(task)
-  if (!task || !secret) return <Sheet title="งาน">{task ? <p className="muted">งานนี้ล็อกอยู่</p> : <p className="muted">ไม่พบงานนี้แล้ว</p>}</Sheet>
+  if (!task || !secret) return <Sheet title="Task">{task ? <p className="muted">This task is locked</p> : <p className="muted">This task no longer exists</p>}</Sheet>
   return <TaskEditor task={task} secret={secret} />
 }
 
@@ -51,7 +51,7 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
     const current = useStore.getState().doc.tasks.find((t) => t.id === d.id)
     if (!current || current.deleted) return
     saveTask({ ...current, ...d, doneAt: current.doneAt }, { ...s, title: s.title.trim() || secret.title }).catch(() =>
-      useUI.getState().notify('ล็อกอยู่ ปลดล็อกแล้วแก้ไขใหม่อีกครั้ง'),
+      useUI.getState().notify('Locked — unlock and edit again'),
     )
   }
 
@@ -90,19 +90,19 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
       title={
         <span className="sheet-kicker">
           {draft.private && <Lock size={14} />}
-          {subject ? subject.short : 'งาน'}
+          {subject ? subject.short : 'Task'}
         </span>
       }
       footer={
         <>
           <button
             className="btn btn-danger"
-            aria-label="ลบงาน"
+            aria-label="Delete task"
             onClick={() => {
               dirty.current = false
               const snaps = deleteTask(task.id)
               close()
-              notify('ลบงานแล้ว', () => restore(snaps))
+              notify('Task deleted', () => restore(snaps))
             }}
           >
             <Trash2 size={18} />
@@ -116,20 +116,20 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
               if (!done) close()
             }}
           >
-            <CheckIcon size={18} /> {done ? 'ยังไม่เสร็จ' : 'เสร็จแล้ว'}
+            <CheckIcon size={18} /> {done ? 'Not done' : 'Done'}
           </button>
         </>
       }
     >
       <div className="stack task-editor">
         <div className="te-title">
-          <Check done={done} color={color} label="เสร็จ" onToggle={() => toggleTask(task.id)} />
+          <Check done={done} color={color} label="Done" onToggle={() => toggleTask(task.id)} />
           <textarea
             className="big-input"
             rows={1}
             value={sec.title}
             maxLength={180}
-            placeholder="ชื่องาน"
+            placeholder="Task name"
             onChange={(e) => editSec({ title: e.target.value.replace(/\n/g, ' ') })}
             ref={(el) => {
               if (el) {
@@ -140,11 +140,11 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
           />
         </div>
         <label className="field">
-          <textarea placeholder="โน้ต" value={sec.notes} rows={2} onChange={(e) => editSec({ notes: e.target.value })} />
+          <textarea placeholder="Notes" value={sec.notes} rows={2} onChange={(e) => editSec({ notes: e.target.value })} />
         </label>
 
         <div className="te-block">
-          <div className="q-label">ขั้นตอน</div>
+          <div className="q-label">Steps</div>
           <div className="prop-list checklist">
             <AnimatePresence initial={false}>
               {sec.checklist.map((c, i) => (
@@ -162,7 +162,7 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
                     value={c.title}
                     onChange={(e) => setItems(sec.checklist.map((x) => (x.id === c.id ? { ...x, title: e.target.value } : x)))}
                   />
-                  <button className="icon-btn plain sm" aria-label={`ลบขั้นตอน ${c.title}`} onClick={() => setItems(sec.checklist.filter((x) => x.id !== c.id))}>
+                  <button className="icon-btn plain sm" aria-label={`Remove step ${c.title}`} onClick={() => setItems(sec.checklist.filter((x) => x.id !== c.id))}>
                     <X size={16} />
                   </button>
                 </motion.div>
@@ -172,7 +172,7 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
               <Plus size={18} />
               <input
                 className="prop-label"
-                placeholder={sec.checklist.length ? 'เพิ่มขั้นตอน' : 'แตกเป็นขั้นแรกที่เริ่มได้เลย'}
+                placeholder={sec.checklist.length ? 'Add a step' : 'Break it into a first small step'}
                 value={newItem}
                 onChange={(e) => setNewItem(e.target.value)}
                 onKeyDown={(e) => {
@@ -189,47 +189,47 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
         </div>
 
         <div className="prop-list">
-          <DateProp icon={<CalendarClock size={18} />} label="กำหนดส่ง" value={draft.due} onChange={(due) => edit({ due })} today={today} />
-          <DateProp icon={<Sun size={18} />} label="วันที่จะทำ" value={draft.plan} onChange={(plan) => edit({ plan })} today={today} />
+          <DateProp icon={<CalendarClock size={18} />} label="Due" value={draft.due} onChange={(due) => edit({ due })} today={today} />
+          <DateProp icon={<Sun size={18} />} label="Do on" value={draft.plan} onChange={(plan) => edit({ plan })} today={today} />
           <div className="prop">
             <Flag size={18} />
-            <span className="prop-label">สำคัญ</span>
-            <Switch on={draft.flagged} onChange={(flagged) => edit({ flagged })} label="สำคัญ" />
+            <span className="prop-label">Important</span>
+            <Switch on={draft.flagged} onChange={(flagged) => edit({ flagged })} label="Important" />
           </div>
           <div className="prop">
             <Lock size={18} />
-            <span className="prop-label">ส่วนตัว · ล็อกด้วย PIN</span>
+            <span className="prop-label">Private · PIN locked</span>
             <Switch
               on={draft.private}
               onChange={(v) => {
                 if (v) withPin(() => edit({ private: true }))
                 else edit({ private: false })
               }}
-              label="ส่วนตัว"
+              label="Private"
             />
           </div>
         </div>
 
         {subjects.length > 0 && (
           <div className="te-block">
-            <div className="q-label">วิชา</div>
+            <div className="q-label">Subject</div>
             <SubjectChips subjects={subjects} value={draft.subjectId} onChange={(subjectId) => edit({ subjectId })} />
           </div>
         )}
 
         <div className="te-block">
-          <div className="q-label">ใช้เวลาประมาณ</div>
+          <div className="q-label">Takes about</div>
           <div className="chips">
             {DURATIONS.map((d) => (
               <button key={d} type="button" className="chip num" aria-pressed={draft.duration === d} onClick={() => edit({ duration: d })}>
-                {d < 60 ? `${d} นาที` : `${d / 60} ชม.`}
+                {d < 60 ? `${d} min` : `${d / 60} hr`}
               </button>
             ))}
           </div>
         </div>
 
         <div className="te-block">
-          <div className="q-label">เวลาที่จองไว้</div>
+          <div className="q-label">Time blocks</div>
           <div className="prop-list">
             {blocks.map((b) => (
               <button key={b.id} className="prop" onClick={() => open({ type: 'event', id: b.id })}>
@@ -242,7 +242,7 @@ function TaskEditor({ task, secret }: { task: Task; secret: TaskSecret }) {
             ))}
             <button className="prop accent-prop" onClick={() => open({ type: 'schedule', taskId: task.id })}>
               <CalendarPlus size={18} />
-              <span className="prop-label">จองเวลาว่าง</span>
+              <span className="prop-label">Block free time</span>
             </button>
           </div>
         </div>

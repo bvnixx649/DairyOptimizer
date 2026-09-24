@@ -13,10 +13,10 @@ import { useUI } from '../../store/ui'
 
 const ago = (t: number) => {
   const s = Math.round((Date.now() - t) / 1000)
-  if (s < 60) return 'เมื่อสักครู่'
-  if (s < 3600) return `${Math.floor(s / 60)} นาทีที่แล้ว`
-  if (s < 86400) return `${Math.floor(s / 3600)} ชม. ที่แล้ว`
-  return new Date(t).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })
+  if (s < 60) return 'just now'
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`
+  if (s < 86400) return `${Math.floor(s / 3600)} hr ago`
+  return new Date(t).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
 }
 
 export function SettingsSheet() {
@@ -30,29 +30,29 @@ export function SettingsSheet() {
   const { open, notify } = useUI.getState()
 
   return (
-    <Sheet tall title="ตั้งค่า">
+    <Sheet tall title="Settings">
       <div className="settings">
         <SyncSection />
 
         <section>
-          <h3 className="set-h">ความเป็นส่วนตัว</h3>
+          <h3 className="set-h">Privacy</h3>
           <div className="prop-list">
             {settings.pin ? (
               <>
                 {pinKey ? (
-                  <button className="prop" onClick={() => (lock(), notify('ล็อกงานส่วนตัวแล้ว'))}>
+                  <button className="prop" onClick={() => (lock(), notify('Private tasks locked'))}>
                     <Lock size={18} />
-                    <span className="prop-label">ล็อกตอนนี้</span>
+                    <span className="prop-label">Lock now</span>
                   </button>
                 ) : (
                   <button className="prop" onClick={() => open({ type: 'pin', purpose: 'unlock' })}>
                     <LockOpen size={18} />
-                    <span className="prop-label">ปลดล็อกงานส่วนตัว</span>
+                    <span className="prop-label">Unlock private tasks</span>
                   </button>
                 )}
                 <button className="prop" onClick={() => (pinKey ? open({ type: 'pin', purpose: 'set' }) : open({ type: 'pin', purpose: 'unlock', then: () => open({ type: 'pin', purpose: 'set' }) }))}>
                   <KeyRound size={18} />
-                  <span className="prop-label">เปลี่ยน PIN</span>
+                  <span className="prop-label">Change PIN</span>
                   <ChevronRight size={18} className="faint" />
                 </button>
                 <button
@@ -60,20 +60,20 @@ export function SettingsSheet() {
                   onClick={() => {
                     const run = () =>
                       removePin().then(
-                        () => notify('ปิด PIN แล้ว งานส่วนตัวกลับเป็นงานปกติ'),
-                        () => notify('ปลดล็อกก่อน'),
+                        () => notify('PIN removed; private tasks are now regular tasks'),
+                        () => notify('Unlock first'),
                       )
                     if (pinKey) void run()
                     else open({ type: 'pin', purpose: 'unlock', then: () => void run() })
                   }}
                 >
-                  <span className="prop-label">ปิด PIN</span>
+                  <span className="prop-label">Turn off PIN</span>
                 </button>
               </>
             ) : (
               <button className="prop" onClick={() => open({ type: 'pin', purpose: 'set' })}>
                 <KeyRound size={18} />
-                <span className="prop-label">ตั้ง PIN สำหรับงานส่วนตัว</span>
+                <span className="prop-label">Set a PIN for private tasks</span>
                 <ChevronRight size={18} className="faint" />
               </button>
             )}
@@ -81,19 +81,19 @@ export function SettingsSheet() {
         </section>
 
         <section>
-          <h3 className="set-h">เงิน</h3>
+          <h3 className="set-h">Money</h3>
           <div className="prop-list">
             <button className="prop" onClick={() => open({ type: 'budget' })}>
               <Wallet size={18} />
-              <span className="prop-label">งบรายเดือน</span>
-              <span className="prop-value num">{settings.budget ? `฿${baht(settings.budget)}` : 'ไม่ตั้ง'}</span>
+              <span className="prop-label">Monthly budget</span>
+              <span className="prop-value num">{settings.budget ? `฿${baht(settings.budget)}` : 'None'}</span>
               <ChevronRight size={18} className="faint" />
             </button>
           </div>
         </section>
 
         <section>
-          <h3 className="set-h">ตารางเรียน</h3>
+          <h3 className="set-h">Timetable</h3>
           <div className="prop-list">
             {subjects.map((s) => (
               <button key={s.id} className="prop" onClick={() => open({ type: 'subject', id: s.id })} style={{ '--c': s.color } as CSSProperties}>
@@ -101,28 +101,28 @@ export function SettingsSheet() {
                 <span className="prop-label">
                   {s.short} <span className="faint num" style={{ fontSize: 13 }}>{s.code}</span>
                 </span>
-                <span className="prop-value num">{live(classes).filter((c) => c.subjectId === s.id).length} คาบ</span>
+                <span className="prop-value num">{live(classes).filter((c) => c.subjectId === s.id).length} classes</span>
                 <ChevronRight size={18} className="faint" />
               </button>
             ))}
             <button className="prop accent-prop" onClick={() => open({ type: 'subjectEdit' })}>
               <Plus size={18} />
-              <span className="prop-label">เพิ่มวิชา</span>
+              <span className="prop-label">Add subject</span>
             </button>
           </div>
         </section>
 
         <section>
-          <h3 className="set-h">ช่วงเวลาที่ใช้หาเวลาว่าง</h3>
+          <h3 className="set-h">Hours used to find free time</h3>
           <div className="prop-list">
             <label className="prop">
               <Clock3 size={18} />
-              <span className="prop-label">เริ่มวัน</span>
+              <span className="prop-label">Day starts</span>
               <input type="time" value={settings.dayStart} onChange={(e) => e.target.value && e.target.value < settings.dayEnd && updateSettings({ dayStart: e.target.value })} />
             </label>
             <label className="prop">
               <Clock3 size={18} style={{ opacity: 0 }} />
-              <span className="prop-label">จบวัน</span>
+              <span className="prop-label">Day ends</span>
               <input type="time" value={settings.dayEnd} onChange={(e) => e.target.value && e.target.value > settings.dayStart && updateSettings({ dayEnd: e.target.value })} />
             </label>
           </div>
@@ -130,7 +130,7 @@ export function SettingsSheet() {
 
         <BackupSection />
 
-        <p className="set-foot">Achieve 3.0 · ข้อมูลเก็บในเครื่องนี้{useSync.getState().state !== 'off' ? ' และ gist ส่วนตัว (เข้ารหัส)' : ''}</p>
+        <p className="set-foot">Achieve 3.0 · Data stays on this device{useSync.getState().state !== 'off' ? ' and your encrypted gist' : ''}</p>
       </div>
     </Sheet>
   )
@@ -146,7 +146,7 @@ function SyncSection() {
   if (sync.state !== 'off')
     return (
       <section>
-        <h3 className="set-h">ซิงก์ระหว่างเครื่อง</h3>
+        <h3 className="set-h">Sync</h3>
         <div className="prop-list">
           <div className="prop">
             <CloudUpload size={18} />
@@ -154,16 +154,16 @@ function SyncSection() {
               GitHub Gist <span className="faint">· {sync.login}</span>
             </span>
             <span className={`prop-value${sync.state === 'error' ? ' danger-text' : ''}`}>
-              {sync.state === 'syncing' ? 'กำลังซิงก์…' : sync.state === 'offline' ? 'ออฟไลน์' : sync.state === 'error' ? 'มีปัญหา' : sync.lastSync ? ago(sync.lastSync) : ''}
+              {sync.state === 'syncing' ? 'Syncing…' : sync.state === 'offline' ? 'Offline' : sync.state === 'error' ? 'Problem' : sync.lastSync ? ago(sync.lastSync) : ''}
             </span>
           </div>
           {sync.error && <div className="prop danger-text" style={{ fontSize: 14 }}>{sync.error}</div>}
           <button className="prop" onClick={() => void syncNow()} disabled={sync.state === 'syncing'}>
             <RefreshCw size={18} />
-            <span className="prop-label">ซิงก์ตอนนี้</span>
+            <span className="prop-label">Sync now</span>
           </button>
           <button className="prop danger-prop" onClick={disconnect}>
-            <span className="prop-label">เลิกซิงก์บนเครื่องนี้</span>
+            <span className="prop-label">Stop syncing on this device</span>
           </button>
         </div>
       </section>
@@ -171,7 +171,7 @@ function SyncSection() {
 
   return (
     <section>
-      <h3 className="set-h">ซิงก์ iPad กับมือถือ</h3>
+      <h3 className="set-h">Sync iPad and phone</h3>
       <form
         className="stack"
         onSubmit={async (e) => {
@@ -181,30 +181,30 @@ function SyncSection() {
           setErr('')
           try {
             await connect(token, pass)
-            useUI.getState().notify('เชื่อมซิงก์แล้ว')
+            useUI.getState().notify('Sync connected')
           } catch (x) {
-            setErr(x instanceof Error ? (x.message === 'offline' ? 'ต่ออินเทอร์เน็ตไม่ได้' : x.message) : 'เชื่อมไม่สำเร็จ')
+            setErr(x instanceof Error ? (x.message === 'offline' ? 'No internet connection' : x.message) : 'Could not connect')
           } finally {
             setBusy(false)
           }
         }}
       >
         <label className="field">
-          <span className="field-label">GitHub token (สิทธิ์ gist)</span>
+          <span className="field-label">GitHub token (gist scope)</span>
           <input type="password" autoComplete="off" spellCheck={false} placeholder="ghp_…" value={token} onChange={(e) => setToken(e.target.value)} />
         </label>
         <label className="field">
-          <span className="field-label">รหัสซิงก์ · ตั้งเองอย่างน้อย 8 ตัว ใช้เหมือนกันทุกเครื่อง</span>
+          <span className="field-label">Sync passphrase · 8+ characters, same on every device</span>
           <input type="password" autoComplete="new-password" value={pass} onChange={(e) => setPass(e.target.value)} />
         </label>
         {err && <div className="note warn">{err}</div>}
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <a className="link-btn" href="https://github.com/settings/tokens/new?scopes=gist&description=Achieve%20sync" target="_blank" rel="noreferrer">
-            สร้าง token <ExternalLink size={14} />
+            Create token <ExternalLink size={14} />
           </a>
           <span style={{ flex: 1 }} />
           <button className="btn btn-primary btn-sm" disabled={busy || !token.trim() || pass.length < 8}>
-            {busy ? 'กำลังเชื่อม…' : 'เชื่อม'}
+            {busy ? 'Connecting…' : 'Connect'}
           </button>
         </div>
       </form>
@@ -246,21 +246,21 @@ function BackupSection() {
     setPending(null)
     if (!f) return
     try {
-      if (f.size > 20e6) throw new Error('ไฟล์ใหญ่เกิน 20 MB')
+      if (f.size > 20e6) throw new Error('File is larger than 20 MB')
       const data = JSON.parse(await f.text())
       if (data?.app === 'achieve' && data.schema === 3 && data.doc) {
         const d = data.doc as Doc
-        setPending({ kind: 'v3', doc: d, counts: `${live(d.tasks ?? []).length} งาน · ${live(d.txs ?? []).length} รายการเงิน · ${live(d.habits ?? []).length} นิสัย` })
+        setPending({ kind: 'v3', doc: d, counts: `${live(d.tasks ?? []).length} tasks · ${live(d.txs ?? []).length} transactions · ${live(d.habits ?? []).length} habits` })
       } else if (isLegacyBackup(data)) {
         setPending({
           kind: 'legacy',
           backup: data,
           locked: legacyLockedCount(data),
-          counts: `${data.tasks.length} งาน · ${data.transactions.length} รายการเงิน · ${(data.habits ?? []).length} นิสัย`,
+          counts: `${data.tasks.length} tasks · ${data.transactions.length} transactions · ${(data.habits ?? []).length} habits`,
         })
-      } else throw new Error('ไม่ใช่ไฟล์สำรองของ Achieve')
+      } else throw new Error('Not an Achieve backup file')
     } catch (e) {
-      setErr(e instanceof Error && e.message.length < 60 ? e.message : 'อ่านไฟล์ไม่ได้')
+      setErr(e instanceof Error && e.message.length < 60 ? e.message : 'Could not read the file')
     }
   }
 
@@ -275,14 +275,14 @@ function BackupSection() {
       } else {
         const decrypt = oldPin ? (box: { salt: string; iv: string; cipher: string }) => decryptLegacy<Record<string, unknown>>(box, oldPin).catch(() => null) : null
         const conv = await convertLegacy(pending.backup, decrypt, todayKey())
-        if (pending.locked && oldPin && conv.skippedLocked === pending.locked) throw new Error('PIN เดิมไม่ถูกต้อง')
+        if (pending.locked && oldPin && conv.skippedLocked === pending.locked) throw new Error('Wrong old PIN')
         if (conv.privateIds.length) {
           let key = useStore.getState().pinKey
           if (!key) {
             if (!store.doc.settings.find((s) => s.pin && !s.deleted) && /^\d{6}$/.test(oldPin)) {
               await store.setPin(oldPin)
               key = useStore.getState().pinKey
-            } else throw new Error('ปลดล็อก PIN ของแอปก่อน แล้วนำเข้าอีกครั้ง')
+            } else throw new Error('Unlock your PIN first, then import again')
           }
           conv.doc.tasks = await Promise.all(
             conv.doc.tasks.map(async (t) => {
@@ -294,13 +294,13 @@ function BackupSection() {
         }
         store.absorb(conv.doc)
         if (conv.budget && !getBudget()) store.updateSettings({ budget: conv.budget })
-        if (conv.skippedLocked) notify(`ข้ามงานที่ล็อกไว้ ${conv.skippedLocked} งาน`)
+        if (conv.skippedLocked) notify(`Skipped ${conv.skippedLocked} locked tasks`)
       }
       setPending(null)
       setOldPin('')
-      notify('นำเข้าข้อมูลแล้ว')
+      notify('Imported')
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'นำเข้าไม่สำเร็จ')
+      setErr(e instanceof Error ? e.message : 'Import failed')
     } finally {
       setBusy(false)
     }
@@ -308,38 +308,38 @@ function BackupSection() {
 
   return (
     <section>
-      <h3 className="set-h">ข้อมูล</h3>
+      <h3 className="set-h">Data</h3>
       <div className="prop-list">
         <button className="prop" onClick={() => void exportData()}>
           <Download size={18} />
-          <span className="prop-label">ส่งออกไฟล์สำรอง</span>
+          <span className="prop-label">Export backup</span>
         </button>
         <button className="prop" onClick={() => fileRef.current?.click()}>
           <Upload size={18} />
-          <span className="prop-label">นำเข้า (รวมไฟล์จาก Achieve เดิม)</span>
+          <span className="prop-label">Import (also old Achieve backups)</span>
         </button>
       </div>
       <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={(e) => void pick(e.target.files?.[0]).finally(() => (e.target.value = ''))} />
       {pending && (
         <div className="card card-pad import-card stack">
           <div>
-            <b>{pending.kind === 'legacy' ? 'ไฟล์จาก Achieve เดิม' : 'ไฟล์สำรอง'}</b>
+            <b>{pending.kind === 'legacy' ? 'Old Achieve backup' : 'Backup file'}</b>
             <p className="muted" style={{ fontSize: 14 }}>
-              {pending.counts} · รวมกับข้อมูลที่มีอยู่
+              {pending.counts} · merges with what’s here
             </p>
           </div>
           {pending.kind === 'legacy' && pending.locked > 0 && (
             <label className="field">
-              <span className="field-label">PIN เดิมของงานที่ล็อก {pending.locked} งาน (เว้นว่าง = ข้าม)</span>
+              <span className="field-label">Old PIN for {pending.locked} locked tasks (leave empty to skip)</span>
               <input type="password" inputMode="numeric" value={oldPin} onChange={(e) => setOldPin(e.target.value.replace(/\D/g, ''))} />
             </label>
           )}
           <div style={{ display: 'flex', gap: 10 }}>
             <button className="btn btn-quiet btn-sm" onClick={() => setPending(null)}>
-              ยกเลิก
+              Cancel
             </button>
             <button className="btn btn-primary btn-sm" style={{ flex: 1 }} disabled={busy} onClick={() => void run()}>
-              {busy ? 'กำลังนำเข้า…' : 'นำเข้า'}
+              {busy ? 'Importing…' : 'Import'}
             </button>
           </div>
         </div>

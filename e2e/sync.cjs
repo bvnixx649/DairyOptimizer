@@ -60,7 +60,7 @@ const URL_ = globalThis.URL
 
   await step('wrong token is rejected with a clear message', async () => {
     const msg = await A.evaluate(() => window.__sync.connect('bad', 'passphrase1').then(() => 'connected', (e) => e.message))
-    assert.match(msg, /Token/)
+    assert.match(msg, /token/i)
   })
 
   await step('iPad connects and creates an encrypted secret gist', async () => {
@@ -76,7 +76,7 @@ const URL_ = globalThis.URL
 
   await step('phone with wrong passphrase cannot read it', async () => {
     const msg = await B.evaluate(() => window.__sync.connect('good-token', 'wrongpass').then(() => 'connected', (e) => e.message))
-    assert.match(msg, /รหัสซิงก์/)
+    assert.match(msg, /passphrase/)
   })
 
   await step('phone merges its own offline edits with the iPad data', async () => {

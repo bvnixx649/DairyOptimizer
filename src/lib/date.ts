@@ -53,47 +53,53 @@ export const nowMinutes = () => {
   return d.getHours() * 60 + d.getMinutes()
 }
 
-export const DAY_SHORT = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']
-export const DAY_NAME = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']
-export const DAY_LETTER = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส']
-export const MONTH_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+export const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+export const DAY_NAME = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+export const DAY_LETTER = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+export const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 export const MONTH_NAME = [
-  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ]
 
-/** "24 ก.ย." */
+/** "Sep 24" */
 export const shortDate = (key: string) => {
   const d = parseDate(key)
-  return `${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`
+  return `${MONTH_SHORT[d.getMonth()]} ${d.getDate()}`
 }
 
-/** "กันยายน 2569" */
+/** "September 2026" */
 export const monthTitle = (monthKey: string) => {
   const [y, m] = monthKey.split('-').map(Number)
-  return `${MONTH_NAME[m - 1]} ${y + 543}`
+  return `${MONTH_NAME[m - 1]} ${y}`
 }
 
 /** Relative label used on task rows and chips. */
 export const relativeDay = (key: string, today = todayKey()) => {
   const diff = daysBetween(today, key)
-  if (diff === 0) return 'วันนี้'
-  if (diff === 1) return 'พรุ่งนี้'
-  if (diff === -1) return 'เมื่อวาน'
+  if (diff === 0) return 'Today'
+  if (diff === 1) return 'Tomorrow'
+  if (diff === -1) return 'Yesterday'
   if (diff > 1 && diff < 7) return DAY_NAME[weekday(key)]
   return shortDate(key)
+}
+
+/** "Due today", "Due Saturday", "Due Oct 3" */
+export const dueText = (key: string, today = todayKey()) => {
+  const r = relativeDay(key, today)
+  return `Due ${['Today', 'Tomorrow', 'Yesterday'].includes(r) ? r.toLowerCase() : r}`
 }
 
 export const durationText = (minutes: number) => {
   const h = Math.floor(minutes / 60)
   const m = Math.round(minutes % 60)
-  if (!h) return `${m} นาที`
-  return m ? `${h} ชม. ${m} นาที` : `${h} ชม.`
+  if (!h) return `${m} min`
+  return m ? `${h} hr ${m} min` : `${h} hr`
 }
 
 export const compactDuration = (minutes: number) => {
   const h = Math.floor(minutes / 60)
   const m = Math.round(minutes % 60)
-  if (!h) return `${m}น.`
-  return m ? `${h}ชม.${m}น.` : `${h}ชม.`
+  if (!h) return `${m}m`
+  return m ? `${h}h ${m}m` : `${h}h`
 }

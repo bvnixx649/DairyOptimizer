@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Page } from '../../components/Page'
 import { Segmented } from '../../components/Segmented'
 import { agendaFor, freeSlots, roundUp5 } from '../../lib/agenda'
-import { addDays, addMonths, DAY_LETTER, DAY_NAME, durationText, monthOf, monthTitle, parseDate, relativeDay, shortDate, weekday, weekStart } from '../../lib/date'
+import { addDays, addMonths, DAY_LETTER, DAY_NAME, dueText, durationText, monthOf, monthTitle, parseDate, relativeDay, shortDate, weekday, weekStart } from '../../lib/date'
 import { useTablet } from '../../lib/useMedia'
 import { useNow } from '../../lib/useNow'
 import { sortTasks, useDoc, useSettings, useSubjects } from '../../store/selectors'
@@ -63,9 +63,9 @@ export function Plan() {
 
   return (
     <Page
-      title="ตาราง"
+      title="Schedule"
       right={
-        <button className="icon-btn" aria-label="เพิ่มนัดหมาย" onClick={() => open({ type: 'event', date: selected })}>
+        <button className="icon-btn" aria-label="New event" onClick={() => open({ type: 'event', date: selected })}>
           <Plus size={20} />
         </button>
       }
@@ -74,27 +74,27 @@ export function Plan() {
         <Segmented
           value={view}
           onChange={setView}
-          label="มุมมอง"
+          label="View"
           options={[
-            { value: 'day', label: 'วัน' },
-            { value: 'week', label: 'สัปดาห์' },
-            { value: 'month', label: 'เดือน' },
+            { value: 'day', label: 'Day' },
+            { value: 'week', label: 'Week' },
+            { value: 'month', label: 'Month' },
           ]}
         />
       </div>
 
       <div className="plan-nav">
-        <button className="icon-btn sm plain" aria-label="ก่อนหน้า" onClick={() => step(-1)}>
+        <button className="icon-btn sm plain" aria-label="Previous" onClick={() => step(-1)}>
           <ChevronLeft size={20} />
         </button>
         <span className="plan-label">{label}</span>
-        <button className="icon-btn sm plain" aria-label="ถัดไป" onClick={() => step(1)}>
+        <button className="icon-btn sm plain" aria-label="Next" onClick={() => step(1)}>
           <ChevronRight size={20} />
         </button>
         <span style={{ flex: 1 }} />
         {selected !== today && (
           <button className="chip" onClick={() => setSelected(today)}>
-            วันนี้
+            Today
           </button>
         )}
       </div>
@@ -186,10 +186,10 @@ function DayDetail({ date, today, minute, compact }: { date: string; today: stri
       <div className="dd-head">
         <div>
           <h2 className="dd-title">
-            {compact ? `${DAY_NAME[weekday(date)]} ${shortDate(date)}` : `${relativeDay(date, today) === DAY_NAME[weekday(date)] ? '' : relativeDay(date, today) + ' · '}${DAY_NAME[weekday(date)]}`}
+            {compact ? `${DAY_NAME[weekday(date)]}, ${shortDate(date)}` : `${relativeDay(date, today) === DAY_NAME[weekday(date)] ? '' : relativeDay(date, today) + ' · '}${DAY_NAME[weekday(date)]}`}
           </h2>
           <p className="muted dd-sub">
-            {[classes ? `${classes} คาบ` : '', date >= today && free ? `ว่าง ${durationText(free)}` : ''].filter(Boolean).join(' · ') || 'ไม่มีอะไรในตาราง'}
+            {[classes ? `${classes} ${classes === 1 ? 'class' : 'classes'}` : '', date >= today && free ? `${durationText(free)} free` : ''].filter(Boolean).join(' · ') || 'Nothing scheduled'}
           </p>
         </div>
       </div>
@@ -197,7 +197,7 @@ function DayDetail({ date, today, minute, compact }: { date: string; today: stri
       {due.length > 0 && (
         <div className="card list dd-due">
           <div className="dd-due-h">
-            <CalendarClock size={15} /> ส่ง{relativeDay(date, today)}
+            <CalendarClock size={15} /> {dueText(date, today)}
           </div>
           {due.map((t) => (
             <TaskRow key={t.id} task={t} today={today} />
@@ -211,7 +211,7 @@ function DayDetail({ date, today, minute, compact }: { date: string; today: stri
 
       {!compact && (
         <button className="add-inline" onClick={() => open({ type: 'event', date })}>
-          <Plus size={18} /> นัดหมาย
+          <Plus size={18} /> Event
         </button>
       )}
     </div>
@@ -236,7 +236,7 @@ function SubjectsRow({ today }: { today: string }) {
   return (
     <section className="section">
       <div className="section-h">
-        <h2>วิชา</h2>
+        <h2>Subjects</h2>
       </div>
       <div className="subject-grid">
         {list.map((s) => {
@@ -247,14 +247,14 @@ function SubjectsRow({ today }: { today: string }) {
                 <span className="sc-short">{s.short}</span>
                 <span className="sc-code num">{s.code}</span>
               </span>
-              <span className="sc-name">{s.thai || s.name}</span>
+              <span className="sc-name">{s.name}</span>
               <span className="sc-foot">
                 {st.open ? (
                   <>
-                    <b className="num">{st.open}</b> งานค้าง{st.next && <span className="faint"> · ส่ง{relativeDay(st.next, today)}</span>}
+                    <b className="num">{st.open}</b> open{st.next && <span className="faint"> · {dueText(st.next, today)}</span>}
                   </>
                 ) : (
-                  <span className="faint">ไม่มีงานค้าง</span>
+                  <span className="faint">Nothing open</span>
                 )}
               </span>
             </button>

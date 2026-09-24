@@ -1,7 +1,7 @@
 import type { Goal, GoalEntry, Tx } from '../data/types'
 import { daysBetween, daysInMonth, monthOf } from './date'
 
-const fmt = new Intl.NumberFormat('th-TH', { maximumFractionDigits: 2, minimumFractionDigits: 0 })
+const fmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 0 })
 
 /** Satang → "1,234" or "1,234.50". */
 export const baht = (satang: number) => fmt.format(Math.abs(satang) / 100)

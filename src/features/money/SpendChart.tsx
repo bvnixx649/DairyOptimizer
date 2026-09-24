@@ -50,18 +50,18 @@ export function SpendChart({ current, previous, days, budget, month }: Props) {
       <div className="sc-legend" aria-hidden="true">
         <span>
           <i className="lg-now" />
-          เดือนนี้
+          This month
         </span>
         {previous.length > 0 && (
           <span>
             <i className="lg-prev" />
-            เดือนก่อน
+            Last month
           </span>
         )}
         {budget && (
           <span>
             <i className="lg-budget" />
-            งบ
+            Budget
           </span>
         )}
       </div>
@@ -72,7 +72,7 @@ export function SpendChart({ current, previous, days, budget, month }: Props) {
         onPointerDown={(e) => pick(e.clientX)}
         onPointerLeave={() => setHover(null)}
         role="img"
-        aria-label={`ใช้จ่ายสะสม ${current.length ? baht(current[last]) : 0} บาท`}
+        aria-label={`Spent ฿${current.length ? baht(current[last]) : 0} so far this month`}
       >
         <svg width={w} height={H} style={{ display: 'block' }}>
           <defs>
@@ -102,10 +102,10 @@ export function SpendChart({ current, previous, days, budget, month }: Props) {
         {hover !== null && (
           <div className="sc-tip" style={{ left: Math.min(Math.max(x(hover), 70), w - 70) }}>
             <b>
-              {hover + 1} {MONTH_SHORT[month]}
+              {MONTH_SHORT[month]} {hover + 1}
             </b>
-            {hover <= last && <span className="num">เดือนนี้ ฿{baht(current[hover])}</span>}
-            {previous[hover] !== undefined && <span className="num faint">เดือนก่อน ฿{baht(previous[hover])}</span>}
+            {hover <= last && <span className="num">This month ฿{baht(current[hover])}</span>}
+            {previous[hover] !== undefined && <span className="num faint">Last month ฿{baht(previous[hover])}</span>}
           </div>
         )}
       </div>

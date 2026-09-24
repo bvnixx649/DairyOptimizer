@@ -25,7 +25,7 @@ export function Toast() {
                   dismiss()
                 }}
               >
-                เลิกทำ
+                Undo
               </button>
             )}
           </motion.div>

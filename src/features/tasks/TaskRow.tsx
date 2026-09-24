@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react'
 import { Check } from '../../components/Check'
 import { SwipeRow } from '../../components/SwipeRow'
 import type { Task } from '../../data/types'
-import { daysBetween, relativeDay } from '../../lib/date'
+import { daysBetween, dueText } from '../../lib/date'
 import { useStore } from '../../store/store'
 import { useSubjects, useTaskSecret } from '../../store/selectors'
 import { useUI } from '../../store/ui'
@@ -33,11 +33,11 @@ export function useTaskActions() {
   return {
     toggle: (t: Task, announce = false) => {
       const snaps = toggleTask(t.id)
-      if (announce) notify(t.doneAt ? 'ย้ายกลับไปงานค้าง' : 'เสร็จแล้ว', () => restore(snaps))
+      if (announce) notify(t.doneAt ? 'Marked not done' : 'Done', () => restore(snaps))
     },
     remove: (t: Task) => {
       const snaps = deleteTask(t.id)
-      notify('ลบงานแล้ว', () => restore(snaps))
+      notify('Task deleted', () => restore(snaps))
     },
   }
 }
@@ -52,7 +52,7 @@ export function TaskRow({ task, today, hideSubject, block }: Props) {
   const color = subject?.color ?? 'var(--accent)'
   const done = !!task.doneAt
   const locked = task.private && !secret
-  const title = locked ? 'งานส่วนตัว' : (secret?.title ?? task.title)
+  const title = locked ? 'Private task' : (secret?.title ?? task.title)
   const checklist = secret?.checklist ?? []
   const nextStep = checklist.find((c) => !c.done)
   const dueIn = task.due ? daysBetween(today, task.due) : null
@@ -60,15 +60,15 @@ export function TaskRow({ task, today, hideSubject, block }: Props) {
 
   return (
     <SwipeRow
-      right={{ label: done ? 'ยังไม่เสร็จ' : 'เสร็จ', icon: CheckIcon, color: subject?.color ?? '#FF8059', run: () => toggle(task, true) }}
+      right={{ label: done ? 'Not done' : 'Done', icon: CheckIcon, color: subject?.color ?? '#FF8059', run: () => toggle(task, true) }}
       left={
         done || plannedToday
-          ? { label: 'ลบ', icon: Trash2, color: '#FF5C63', run: () => remove(task) }
-          : { label: 'ทำวันนี้', icon: Sun, color: '#F2CF4A', run: () => patch('tasks', task.id, { plan: today }) }
+          ? { label: 'Delete', icon: Trash2, color: '#FF5C63', run: () => remove(task) }
+          : { label: 'Today', icon: Sun, color: '#F2CF4A', run: () => patch('tasks', task.id, { plan: today }) }
       }
     >
       <div className="row hoverable task-row" role="button" tabIndex={0} onClick={() => openTask(task)} onKeyDown={(e) => e.key === 'Enter' && openTask(task)}>
-        <Check done={done} color={color} label={`ทำเครื่องหมายเสร็จ: ${title}`} onToggle={() => toggle(task)} />
+        <Check done={done} color={color} label={`Mark done: ${title}`} onToggle={() => toggle(task)} />
         <div className="row-main">
           <div className={`row-title${done ? ' done-text' : ''}`}>
             {locked && <Lock size={14} style={{ marginRight: 6, verticalAlign: '-1px', color: 'var(--text-2)' }} />}
@@ -85,7 +85,7 @@ export function TaskRow({ task, today, hideSubject, block }: Props) {
               {task.due && (
                 <span className={`m${dueIn! < 0 ? ' warn' : dueIn! <= 1 ? ' hot' : ''}`}>
                   <CalendarClock size={13} />
-                  {dueIn! < 0 ? `เลย ${-dueIn!} วัน` : `ส่ง${relativeDay(task.due, today)}`}
+                  {dueIn! < 0 ? `${-dueIn!}d overdue` : dueText(task.due, today)}
                 </span>
               )}
               {block && (

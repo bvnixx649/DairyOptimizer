@@ -24,21 +24,21 @@ export function HabitSheet({ id }: { id: string }) {
   const h = doc.habits.find((x) => x.id === id && !x.deleted)
   const done = useMemo(() => doneSet(doc.habitLogs, id), [doc.habitLogs, id])
 
-  if (!h) return <Sheet title="นิสัย">ไม่พบนิสัยนี้แล้ว</Sheet>
+  if (!h) return <Sheet title="Habit">This habit no longer exists</Sheet>
 
   const run = streak(h, done, today)
   const best = bestStreak(h, done, today)
   const r = rate(h, done, today, 30)
   const first = addDays(weekStart(today), -7 * (WEEKS - 1))
   const weeks = Array.from({ length: WEEKS }, (_, w) => Array.from({ length: 7 }, (_, d) => addDays(first, w * 7 + d)))
-  const unit = h.mode === 'context' ? 'สัปดาห์' : 'วัน'
+  const unit = h.mode === 'context' ? 'weeks' : 'days'
 
   return (
     <Sheet
       label={h.title}
       title=" "
       actions={
-        <button className="icon-btn sm" aria-label="แก้ไข" onClick={() => open({ type: 'habitEdit', id })}>
+        <button className="icon-btn sm" aria-label="Edit" onClick={() => open({ type: 'habitEdit', id })}>
           <Pencil size={16} />
         </button>
       }
@@ -49,10 +49,10 @@ export function HabitSheet({ id }: { id: string }) {
           onClick={() => {
             patch('habits', id, { archived: true })
             close()
-            notify('เก็บนิสัยไว้แล้ว', () => patch('habits', id, { archived: false }))
+            notify('Habit archived', () => patch('habits', id, { archived: false }))
           }}
         >
-          <Archive size={17} /> เก็บไว้ก่อน
+          <Archive size={17} /> Archive
         </button>
       }
     >
@@ -64,19 +64,19 @@ export function HabitSheet({ id }: { id: string }) {
       <div className="stat-row" style={{ '--c': h.color } as CSSProperties}>
         <div className="stat">
           <span className="stat-v num">{run}</span>
-          <span className="stat-l">ติดต่อกัน ({unit})</span>
+          <span className="stat-l">Streak ({unit})</span>
         </div>
         <div className="stat">
           <span className="stat-v num">{best}</span>
-          <span className="stat-l">ดีที่สุด</span>
+          <span className="stat-l">Best</span>
         </div>
         <div className="stat">
           <span className="stat-v num">{h.mode === 'context' ? r.hits : `${Math.round(r.ratio * 100)}%`}</span>
-          <span className="stat-l">{h.mode === 'context' ? 'ครั้งใน 30 วัน' : '30 วันล่าสุด'}</span>
+          <span className="stat-l">{h.mode === 'context' ? 'Times in 30 days' : 'Last 30 days'}</span>
         </div>
       </div>
 
-      <div className="heatmap" style={{ '--c': h.color } as CSSProperties} role="grid" aria-label="ประวัติ">
+      <div className="heatmap" style={{ '--c': h.color } as CSSProperties} role="grid" aria-label="History">
         <div className="hm-days" aria-hidden="true">
           {[1, 3, 5].map((d) => (
             <span key={d} style={{ gridRow: ((d + 6) % 7) + 2 }}>
@@ -97,7 +97,7 @@ export function HabitSheet({ id }: { id: string }) {
                   key={d}
                   className={`hm-cell${on ? ' on' : ''}${future ? ' future' : ''}${d === today ? ' today' : ''}${!on && !future && isScheduled(h, d) && d >= h.createdAt && d < today ? ' miss' : ''}`}
                   disabled={future}
-                  aria-label={`${d}${on ? ' ทำแล้ว' : ''}`}
+                  aria-label={`${d}${on ? ' done' : ''}`}
                   onClick={() => {
                     tick(6)
                     toggleHabit(id, d)
@@ -113,9 +113,9 @@ export function HabitSheet({ id }: { id: string }) {
 }
 
 const MODES: { value: HabitMode; label: string }[] = [
-  { value: 'daily', label: 'ทุกวัน' },
-  { value: 'days', label: 'บางวัน' },
-  { value: 'context', label: 'เมื่อมีโอกาส' },
+  { value: 'daily', label: 'Every day' },
+  { value: 'days', label: 'Some days' },
+  { value: 'context', label: 'When it comes up' },
 ]
 
 export function HabitEditSheet({ id }: { id?: string }) {
@@ -151,32 +151,32 @@ export function HabitEditSheet({ id }: { id?: string }) {
     }
     put('habits', habit)
     close()
-    notify(existing ? 'บันทึกแล้ว' : 'เพิ่มนิสัยแล้ว')
+    notify(existing ? 'Saved' : 'Habit added')
   }
 
   const Preview = iconFor(icon)
 
   return (
     <Sheet
-      title={existing ? 'แก้ไขนิสัย' : 'นิสัยใหม่'}
+      title={existing ? 'Edit habit' : 'New habit'}
       footer={
         <>
           {existing && (
             <button
               className="btn btn-danger"
-              aria-label="ลบนิสัย"
+              aria-label="Delete habit"
               onClick={() => {
                 const logs = doc.habitLogs.filter((l) => l.habitId === existing.id && !l.deleted).map((l) => l.id)
                 const snaps = [...remove('habits', [existing.id]), ...remove('habitLogs', logs)]
                 close(2)
-                notify('ลบนิสัยแล้ว', () => restore(snaps))
+                notify('Habit deleted', () => restore(snaps))
               }}
             >
               <Trash2 size={18} />
             </button>
           )}
           <button className="btn btn-primary" disabled={!valid} onClick={save}>
-            {existing ? 'บันทึก' : 'เพิ่มนิสัย'}
+            {existing ? 'Save' : 'Add habit'}
           </button>
         </>
       }
@@ -186,14 +186,14 @@ export function HabitEditSheet({ id }: { id?: string }) {
           <span className="icon-tile" style={{ width: 52, height: 52, borderRadius: 18 }}>
             <Preview size={24} />
           </span>
-          <input className="big-input" autoFocus={!existing} placeholder="อยากทำอะไรให้เป็นนิสัย" value={title} maxLength={100} onChange={(e) => setTitle(e.target.value)} />
+          <input className="big-input" autoFocus={!existing} placeholder="What do you want to make a habit?" value={title} maxLength={100} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <label className="field">
-          <span className="field-label">เมื่อไหร่ / ที่ไหน</span>
-          <input placeholder="เช่น หลังกินข้าวเย็น" value={cue} maxLength={160} onChange={(e) => setCue(e.target.value)} />
+          <span className="field-label">When / where</span>
+          <input placeholder="e.g. after dinner" value={cue} maxLength={160} onChange={(e) => setCue(e.target.value)} />
         </label>
 
-        <Segmented value={mode} onChange={setMode} options={MODES} label="ความถี่" />
+        <Segmented value={mode} onChange={setMode} options={MODES} label="Frequency" />
         {mode === 'days' && (
           <div className="weekday-pick">
             {[1, 2, 3, 4, 5, 6, 0].map((d) => (
@@ -203,10 +203,10 @@ export function HabitEditSheet({ id }: { id?: string }) {
             ))}
           </div>
         )}
-        {mode === 'context' && <p className="muted" style={{ fontSize: 14 }}>ไม่นับว่าพลาดในวันที่ไม่มีโอกาสทำ</p>}
+        {mode === 'context' && <p className="muted" style={{ fontSize: 14 }}>Days without a chance don’t count as missed</p>}
 
         <div>
-          <div className="q-label">ไอคอน</div>
+          <div className="q-label">Icon</div>
           <div className="icon-pick" style={{ '--c': color } as CSSProperties}>
             {HABIT_ICONS.map((name) => {
               const I = iconFor(name)
@@ -219,7 +219,7 @@ export function HabitEditSheet({ id }: { id?: string }) {
           </div>
         </div>
         <div>
-          <div className="q-label">สี</div>
+          <div className="q-label">Colour</div>
           <div className="color-pick">
             {PALETTE.map((c) => (
               <button key={c} type="button" aria-pressed={color === c} aria-label={c} style={{ '--c': c } as CSSProperties} onClick={() => setColor(c)} />

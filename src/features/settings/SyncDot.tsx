@@ -7,7 +7,7 @@ export function SyncDot() {
   const open = useUI((s) => s.open)
   if (state === 'off') return null
   const Icon = state === 'syncing' ? RefreshCw : state === 'error' ? CloudAlert : state === 'offline' ? CloudOff : Cloud
-  const label = { syncing: 'กำลังซิงก์', error: 'ซิงก์ไม่สำเร็จ', offline: 'ออฟไลน์', idle: 'ซิงก์แล้ว' }[state]
+  const label = { syncing: 'Syncing', error: 'Sync failed', offline: 'Offline', idle: 'Synced' }[state]
   return (
     <button className={`icon-btn plain sync-dot ${state}`} aria-label={label} title={label} onClick={() => open({ type: 'settings' })}>
       <Icon size={18} />

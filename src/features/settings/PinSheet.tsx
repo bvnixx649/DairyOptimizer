@@ -34,7 +34,7 @@ export function PinSheet({ purpose, then }: { purpose: 'unlock' | 'set'; then?: 
         setBusy(true)
         const ok = await unlock(pin)
         setBusy(false)
-        return ok ? done() : fail('PIN ไม่ถูกต้อง')
+        return ok ? done() : fail('Wrong PIN')
       }
       if (!first) {
         setFirst(pin)
@@ -44,15 +44,15 @@ export function PinSheet({ purpose, then }: { purpose: 'unlock' | 'set'; then?: 
       }
       if (pin !== first) {
         setFirst(null)
-        return fail('PIN ไม่ตรงกัน ลองใหม่')
+        return fail('PINs didn’t match, try again')
       }
       setBusy(true)
       try {
         await setPin(pin)
-        notify('ตั้ง PIN แล้ว')
+        notify('PIN set')
         done()
       } catch {
-        fail('ปลดล็อกงานส่วนตัวก่อนเปลี่ยน PIN')
+        fail('Unlock private tasks before changing the PIN')
       } finally {
         setBusy(false)
       }
@@ -68,7 +68,7 @@ export function PinSheet({ purpose, then }: { purpose: 'unlock' | 'set'; then?: 
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  const heading = purpose === 'unlock' ? 'ใส่ PIN' : first ? 'ยืนยัน PIN อีกครั้ง' : 'ตั้ง PIN 6 หลัก'
+  const heading = purpose === 'unlock' ? 'Enter PIN' : first ? 'Confirm PIN' : 'Set a 6-digit PIN'
 
   return (
     <Sheet label={heading}>
@@ -77,8 +77,8 @@ export function PinSheet({ purpose, then }: { purpose: 'unlock' | 'set'; then?: 
           <LockKeyhole size={24} />
         </span>
         <h2 className="pin-title">{heading}</h2>
-        <p className={`pin-msg${error ? ' err' : ''}`}>{error || (busy ? 'กำลังตรวจ…' : purpose === 'set' && !first ? 'ใช้ปลดล็อกงานส่วนตัวบนทุกเครื่อง' : ' ')}</p>
-        <motion.div className="pin-dots" animate={shake} aria-label={`ใส่แล้ว ${pin.length} จาก ${LENGTH} หลัก`}>
+        <p className={`pin-msg${error ? ' err' : ''}`}>{error || (busy ? 'Checking…' : purpose === 'set' && !first ? 'Unlocks private tasks on every device' : ' ')}</p>
+        <motion.div className="pin-dots" animate={shake} aria-label={`${pin.length} of ${LENGTH} digits entered`}>
           {Array.from({ length: LENGTH }, (_, i) => (
             <span key={i} className={i < pin.length ? 'on' : ''} />
           ))}
@@ -93,7 +93,7 @@ export function PinSheet({ purpose, then }: { purpose: 'unlock' | 'set'; then?: 
                 type="button"
                 className={`key${k === 'back' ? ' fn' : ''}`}
                 disabled={busy}
-                aria-label={k === 'back' ? 'ลบ' : k}
+                aria-label={k === 'back' ? 'Delete' : k}
                 onClick={() => {
                   tick(5)
                   setError('')

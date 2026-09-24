@@ -75,16 +75,16 @@ async function gh(path: string, token: string, init: RequestInit = {}) {
   } catch {
     throw new SyncError('offline')
   }
-  if (res.status === 401) throw new SyncError('Token ใช้ไม่ได้หรือหมดอายุ')
-  if (res.status === 403 || res.status === 429) throw new SyncError('GitHub จำกัดการเรียกชั่วคราว')
-  if (res.status === 404) throw new SyncError('ไม่พบ gist หรือ token ไม่มีสิทธิ์ gist')
-  if (!res.ok) throw new SyncError(`GitHub ตอบกลับ ${res.status}`)
+  if (res.status === 401) throw new SyncError('The GitHub token is invalid or expired')
+  if (res.status === 403 || res.status === 429) throw new SyncError('GitHub is rate-limiting requests, try again soon')
+  if (res.status === 404) throw new SyncError('Gist not found, or the token lacks the gist scope')
+  if (!res.ok) throw new SyncError(`GitHub replied ${res.status}`)
   return res.json()
 }
 
 async function readEnvelope(token: string, gist: { files: Record<string, { content?: string; truncated?: boolean; raw_url: string }> }) {
   const file = gist.files[FILE]
-  if (!file) throw new SyncError('gist ไม่มีไฟล์ข้อมูล')
+  if (!file) throw new SyncError('The gist has no Achieve data file')
   let text = file.content ?? ''
   if (file.truncated || !text) {
     const res = await fetch(file.raw_url, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
@@ -118,7 +118,7 @@ export async function connect(token: string, passphrase: string) {
     try {
       remote = await decryptJSON<Doc>(key, found.env)
     } catch {
-      throw new SyncError('รหัสซิงก์ไม่ตรงกับข้อมูลที่ซิงก์ไว้')
+      throw new SyncError('Wrong sync passphrase for the existing data')
     }
     config = { token, gistId: found.id, salt: found.env.salt, key: toB64(await crypto.subtle.exportKey('raw', key)), login: user.login }
     useStore.getState().absorb(remote)
@@ -169,7 +169,7 @@ async function round() {
   try {
     const env = await readEnvelope(cfg.token, await gh(`/gists/${cfg.gistId}`, cfg.token))
     const remote = await decryptJSON<Doc>(await importKey(cfg.key), env).catch(() => {
-      throw new SyncError('ถอดรหัสข้อมูลซิงก์ไม่ได้ ลองเชื่อมใหม่')
+      throw new SyncError('Could not decrypt the synced data, reconnect sync')
     })
     useStore.getState().absorb(remote)
     const merged = mergeDocs(useStore.getState().doc, remote)

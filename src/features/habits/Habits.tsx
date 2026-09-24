@@ -28,10 +28,10 @@ export function Habits() {
 
   return (
     <Page
-      title="นิสัย"
-      sub={todayList.length ? `วันนี้ ${doneToday}/${todayList.length}` : undefined}
+      title="Habits"
+      sub={todayList.length ? `${doneToday} of ${todayList.length} today` : undefined}
       right={
-        <button className="icon-btn" aria-label="เพิ่มนิสัย" onClick={() => open({ type: 'habitEdit' })}>
+        <button className="icon-btn" aria-label="New habit" onClick={() => open({ type: 'habitEdit' })}>
           <Plus size={20} />
         </button>
       }
@@ -40,10 +40,10 @@ export function Habits() {
         <div className="card">
           <Empty
             icon={Plus}
-            text="เริ่มจากนิสัยเล็ก ๆ หนึ่งอย่าง"
+            text="Start with one small habit"
             action={
               <button className="btn btn-quiet btn-sm" onClick={() => open({ type: 'habitEdit' })}>
-                <Plus size={16} /> เพิ่มนิสัย
+                <Plus size={16} /> New habit
               </button>
             }
           />
@@ -63,7 +63,7 @@ export function Habits() {
 
           <section className="section week-habits">
             <div className="section-h">
-              <h2>สัปดาห์นี้</h2>
+              <h2>This week</h2>
             </div>
             <WeekTable today={today} />
           </section>
@@ -75,7 +75,7 @@ export function Habits() {
           <button className="section-h done-toggle" onClick={() => setShowArchived(!showArchived)} aria-expanded={showArchived}>
             <h2 className="muted">
               <Archive size={16} style={{ verticalAlign: '-2px', marginRight: 6 }} />
-              เก็บไว้<span className="count num">{archived.length}</span>
+              Archived<span className="count num">{archived.length}</span>
             </h2>
             <motion.span animate={{ rotate: showArchived ? 180 : 0 }}>
               <ChevronDown size={18} className="muted" />
@@ -93,7 +93,7 @@ export function Habits() {
                       </span>
                       <span className="row-main row-title">{h.title}</span>
                       <button className="btn btn-quiet btn-sm" onClick={() => patch('habits', h.id, { archived: false })}>
-                        <RotateCcw size={15} /> ใช้ต่อ
+                        <RotateCcw size={15} /> Restore
                       </button>
                     </div>
                   )
@@ -145,7 +145,7 @@ function WeekTable({ today }: { today: string }) {
                   key={d}
                   className={`wt-cell ${state}`}
                   disabled={future}
-                  aria-label={`${h.title} ${d}${on ? ' ทำแล้ว' : ''}`}
+                  aria-label={`${h.title} ${d}${on ? ' done' : ''}`}
                   aria-pressed={on}
                   onClick={() => {
                     tick(8)

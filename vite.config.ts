@@ -13,7 +13,7 @@ export default defineConfig({
         id: '/DairyOptimizer/',
         name: 'Achieve',
         short_name: 'Achieve',
-        lang: 'th',
+        lang: 'en',
         start_url: '/DairyOptimizer/',
         scope: '/DairyOptimizer/',
         display: 'standalone',

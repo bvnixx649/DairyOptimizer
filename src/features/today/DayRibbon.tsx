@@ -22,7 +22,7 @@ export function DayRibbon({ items, subjects, dayStart, dayEnd, now, onClick }: P
   for (let h = lo / 60; h <= hi / 60; h += 2) hours.push(h)
 
   return (
-    <button className="ribbon" onClick={onClick} aria-label="ดูตารางวันนี้">
+    <button className="ribbon" onClick={onClick} aria-label="Open today’s schedule">
       <div className="ribbon-track">
         {now !== undefined && <span className="ribbon-past" style={{ width: `${pct(now)}%` }} />}
         {items.map((i) => {

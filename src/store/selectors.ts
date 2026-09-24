@@ -16,7 +16,7 @@ export function useSubjects() {
 
 export function useTitle() {
   const secrets = useStore((s) => s.secrets)
-  return (t: Task) => (t.private ? (secrets[t.id]?.title ?? 'งานส่วนตัว') : t.title)
+  return (t: Task) => (t.private ? (secrets[t.id]?.title ?? 'Private task') : t.title)
 }
 
 export function useTaskSecret(t: Task | undefined) {
@@ -29,12 +29,12 @@ export function useTaskSecret(t: Task | undefined) {
 export type Bucket = 'overdue' | 'today' | 'tomorrow' | 'week' | 'later' | 'someday'
 
 export const BUCKET_LABEL: Record<Bucket, string> = {
-  overdue: 'เลยกำหนด',
-  today: 'วันนี้',
-  tomorrow: 'พรุ่งนี้',
-  week: 'สัปดาห์นี้',
-  later: 'ถัดไป',
-  someday: 'ไม่กำหนดวัน',
+  overdue: 'Overdue',
+  today: 'Today',
+  tomorrow: 'Tomorrow',
+  week: 'This week',
+  later: 'Later',
+  someday: 'No date',
 }
 
 /** Where an open task sits: by the earlier of its plan date and deadline. */

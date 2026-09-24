@@ -1646,8 +1646,10 @@
 
 /* ---------- Narrow screens / 200% zoom ---------- */
 
-.today-grid {
-  grid-template-columns: minmax(0, 1fr);
+@media (max-width: 899px) {
+  .today-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .today-grid > *,
@@ -1678,4 +1680,24 @@
   .ws-num {
     font-size: 15px;
   }
+}
+
+/* Longer English labels wrap instead of overflowing on narrow screens. */
+.section-h,
+.plan-nav,
+.mh-top,
+.money-glance .mg-row,
+.mg-foot {
+  flex-wrap: wrap;
+}
+
+.segmented {
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.segmented button {
+  min-width: 0;
+  padding: 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { seedDoc, SETTINGS_ID, seedSettings } from '../data/seed'
+import { seedDoc, seedHabits, SETTINGS_ID, seedSettings } from '../data/seed'
 import { COLLECTIONS, type CollectionName, type Collections, type Doc, type Rec, type Settings, type Task, type TaskSecret } from '../data/types'
 import { createPin, decryptJSON, encryptJSON, unlockPin } from '../lib/crypto'
 import { todayKey } from '../lib/date'
@@ -51,6 +51,12 @@ function load(): { doc: Doc; error: boolean } {
     const parsed = JSON.parse(raw) as Doc
     if (parsed.schema !== 3) throw new Error('schema')
     for (const k of COLLECTIONS) if (!Array.isArray(parsed[k])) (parsed as unknown as Record<string, Rec[]>)[k] = []
+    // Starter habits nobody has edited yet pick up the current (English) wording.
+    const seeds = seedHabits(todayKey())
+    parsed.habits = parsed.habits.map((h) => {
+      const seed = seeds.find((s) => s.id === h.id)
+      return seed && h.updatedAt < seed.updatedAt ? { ...h, title: seed.title, cue: seed.cue, updatedAt: seed.updatedAt } : h
+    })
     return { doc: parsed, error: false }
   } catch {
     // Keep the unreadable copy aside instead of overwriting it.

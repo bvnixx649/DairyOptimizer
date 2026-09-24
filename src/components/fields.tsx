@@ -17,7 +17,7 @@ function openPicker(input: HTMLInputElement | null) {
   }
 }
 
-export function DateChip({ value, onChange, today, label = 'เลือกวัน' }: { value: string | null; onChange: (v: string) => void; today: string; label?: string }) {
+export function DateChip({ value, onChange, today, label = 'Pick date' }: { value: string | null; onChange: (v: string) => void; today: string; label?: string }) {
   const ref = useRef<HTMLInputElement>(null)
   return (
     <span style={{ position: 'relative', display: 'inline-flex' }}>
@@ -54,11 +54,11 @@ export function DateProp({ icon, label, value, onChange, today }: { icon: ReactN
             {relativeDay(value, today) !== shortDate(value) && <span className="faint"> · {shortDate(value)}</span>}
           </span>
         ) : (
-          <span className="faint">ไม่กำหนด</span>
+          <span className="faint">None</span>
         )}
       </button>
       {value && (
-        <button type="button" className="icon-btn plain sm" aria-label={`ล้าง${label}`} onClick={() => onChange(null)}>
+        <button type="button" className="icon-btn plain sm" aria-label={`Clear ${label}`} onClick={() => onChange(null)}>
           <X size={16} />
         </button>
       )}
@@ -77,7 +77,7 @@ export function DateProp({ icon, label, value, onChange, today }: { icon: ReactN
 
 export function SubjectChips({ subjects, value, onChange }: { subjects: Subject[]; value: string | null; onChange: (v: string | null) => void }) {
   return (
-    <div className="chips scroll-x" role="group" aria-label="วิชา">
+    <div className="chips scroll-x" role="group" aria-label="Subject">
       {subjects.map((s) => (
         <button
           key={s.id}
@@ -97,7 +97,7 @@ export function SubjectChips({ subjects, value, onChange }: { subjects: Subject[
 
 export function CategoryPicker({ categories, value, onChange }: { categories: Category[]; value: string; onChange: (v: string) => void }) {
   return (
-    <div className="cat-grid" role="radiogroup" aria-label="หมวด">
+    <div className="cat-grid" role="radiogroup" aria-label="Category">
       {categories.map((c) => {
         const Icon = iconFor(c.icon)
         return (
@@ -116,7 +116,7 @@ export function CategoryPicker({ categories, value, onChange }: { categories: Ca
             <span className="cat-icon">
               <Icon size={19} strokeWidth={2} />
             </span>
-            <span className="cat-name">{c.name}</span>
+            <span className="cat-name">{c.label}</span>
           </button>
         )
       })}
@@ -155,9 +155,9 @@ export function AmountPad({ value, onChange, onSubmit }: { value: string; onChan
   })
 
   return (
-    <div className="keypad" aria-label="แป้นตัวเลข">
+    <div className="keypad" aria-label="Keypad">
       {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'back'].map((k) => (
-        <button key={k} type="button" className={`key${k === '.' || k === 'back' ? ' fn' : ''}`} onClick={() => press(k)} aria-label={k === 'back' ? 'ลบ' : k}>
+        <button key={k} type="button" className={`key${k === '.' || k === 'back' ? ' fn' : ''}`} onClick={() => press(k)} aria-label={k === 'back' ? 'Delete' : k}>
           {k === 'back' ? <Delete size={22} /> : k}
         </button>
       ))}

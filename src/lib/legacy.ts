@@ -43,6 +43,9 @@ export const isLegacyBackup = (v: unknown): v is LegacyBackup => {
 
 export const legacyLockedCount = (b: LegacyBackup) => b.tasks.filter((t) => t.locked).length
 
+/** Starter habits from the old app map onto the same seeded habits here. */
+const LEGACY_SEEDS: Record<string, string> = { 'วางมือถือให้ไกล': 'habit-phone-away', 'คิดก่อนซื้อ': 'habit-think-before-buy' }
+
 const ICONS: Record<string, string> = { phone: 'vibrate-off', bag: 'shopping-bag', book: 'book-open', heart: 'heart', spark: 'sparkles' }
 const isDate = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)
 const noonOf = (date: string) => new Date(`${date}T12:00:00`).getTime()
@@ -110,7 +113,7 @@ export async function convertLegacy(
       privateIds.push(t.id)
     }
     const secret: TaskSecret = {
-      title: String(src.title ?? '').slice(0, 180) || 'งาน',
+      title: String(src.title ?? '').slice(0, 180) || 'Task',
       notes: String(src.notes ?? ''),
       checklist: (Array.isArray(src.checklist) ? src.checklist : []).map((c, i) => ({ id: `${t.id}-c${i}`, title: String(c.title), done: !!c.done })),
     }
@@ -176,7 +179,7 @@ export async function convertLegacy(
   const habitMap = new Map<string, string>()
   const habits: Habit[] = []
   ;(b.habits ?? []).forEach((h, order) => {
-    const seed = seedH.find((s) => s.title === h.title)
+    const seed = seedH.find((s) => s.id === LEGACY_SEEDS[h.title] || s.title === h.title)
     const id = seed?.id ?? h.id
     habitMap.set(h.id, id)
     habits.push({

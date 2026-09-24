@@ -62,7 +62,7 @@ export function Sheet({ title, children, footer, actions, tall, wide, label }: P
             <div className="sheet-head" onPointerDown={(e) => !tablet && (e.target as HTMLElement).closest('button,input') === null && drag.start(e)}>
               <h2>{title}</h2>
               {actions}
-              <button className="icon-btn sm" onClick={() => close()} aria-label="ปิด">
+              <button className="icon-btn sm" onClick={() => close()} aria-label="Close">
                 <X size={18} />
               </button>
             </div>

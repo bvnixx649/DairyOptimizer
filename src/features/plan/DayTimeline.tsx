@@ -48,7 +48,7 @@ export function DayTimeline({ date, today, minute }: { date: string; today: stri
       {entries.map((e, i) => {
         if (e.kind === 'now')
           return (
-            <li key="now" className="tl-now" aria-label={`ตอนนี้ ${timeOf(minute)}`}>
+            <li key="now" className="tl-now" aria-label={`Now ${timeOf(minute)}`}>
               <span className="tl-time num">{timeOf(minute)}</span>
               <span className="tl-now-line" />
             </li>
@@ -61,7 +61,7 @@ export function DayTimeline({ date, today, minute }: { date: string; today: stri
               {e.free ? (
                 <button className="tl-gap-btn" onClick={() => open({ type: 'slot', date, start: e.slot.start, end: e.slot.end })}>
                   <span>
-                    ว่าง <span className="num">{durationText(e.slot.minutes)}</span>
+                    <span className="num">{durationText(e.slot.minutes)}</span> free
                   </span>
                   <span className="tl-plus">
                     <Plus size={16} />
@@ -87,7 +87,7 @@ export function DayTimeline({ date, today, minute }: { date: string; today: stri
         if (it.kind === 'class') {
           const s = byId.get(it.slot.subjectId)
           color = s?.color ?? color
-          title = s?.name ?? 'วิชาเรียน'
+          title = s?.name ?? 'Class'
           icon = <BookOpen size={18} />
           const n = s ? openBySubject.get(s.id) : 0
           meta = (
@@ -96,7 +96,7 @@ export function DayTimeline({ date, today, minute }: { date: string; today: stri
                 <MapPin size={13} />
                 {it.slot.room}
               </span>
-              {!!n && <span className="m hot">{n} งานค้าง</span>}
+              {!!n && <span className="m hot">{n} open</span>}
             </>
           )
           onClick = () => s && open({ type: 'subject', id: s.id })
@@ -104,11 +104,11 @@ export function DayTimeline({ date, today, minute }: { date: string; today: stri
           const task = doc.tasks.find((t) => t.id === it.event.taskId)
           const s = task?.subjectId ? byId.get(task.subjectId) : undefined
           color = s?.color ?? '#FF8059'
-          title = task ? titleOf(task) : 'งาน'
+          title = task ? titleOf(task) : 'Task'
           icon = <CalendarClock size={18} />
           meta = s && <span className="m">{s.short}</span>
           onClick = () => open({ type: 'event', id: it.event.id })
-          if (task) check = <Check done={!!task.doneAt} color={color} label={`เสร็จ: ${title}`} onToggle={() => toggleTask(task.id)} />
+          if (task) check = <Check done={!!task.doneAt} color={color} label={`Done: ${title}`} onToggle={() => toggleTask(task.id)} />
         } else {
           title = it.event.title
           icon = <Clock3 size={18} />

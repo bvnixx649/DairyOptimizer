@@ -71,7 +71,7 @@ export function App() {
       <div className="shell">
         <Rail />
         <main className="main">
-          {storageError && <div className="storage-warn">บันทึกลงเครื่องไม่ได้ — ส่งออกข้อมูลสำรองไว้ก่อน</div>}
+          {storageError && <div className="storage-warn">Can’t save on this device — export a backup now</div>}
           {/* Enter-only transition: the old page unmounts at once, so it can never linger behind the new one. */}
           <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
             <Page />
