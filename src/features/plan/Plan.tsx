@@ -1,6 +1,6 @@
-import { AnimatePresence, motion } from 'motion/react'
+import { motion } from 'motion/react'
 import { ChevronLeft, ChevronRight, CalendarClock, Plus } from 'lucide-react'
-import { useMemo, useState, type CSSProperties } from 'react'
+import { useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Page } from '../../components/Page'
 import { Segmented } from '../../components/Segmented'
 import { agendaFor, freeSlots, roundUp5 } from '../../lib/agenda'
@@ -103,31 +103,27 @@ export function Plan() {
         <div className="plan-main">
           {view === 'day' && <WeekStrip start={weekStart(selected)} selected={selected} today={today} onSelect={setSelected} onSwipe={step} />}
 
-          <AnimatePresence mode="popLayout" initial={false} custom={dir}>
-            <motion.div
-              key={`${view}-${view === 'day' ? selected : pageKey}`}
-              custom={dir}
-              initial={{ opacity: 0, x: dir * 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: dir * -24, transition: { duration: 0.12 } }}
-              transition={{ type: 'spring', stiffness: 380, damping: 36 }}
-            >
-              {view === 'week' && (
-                <WeekGrid
-                  start={weekStart(selected)}
-                  today={today}
-                  minute={minute}
-                  selected={selected}
-                  onSelect={(d) => {
-                    setSelected(d)
-                    if (!tablet) setView('day')
-                  }}
-                />
-              )}
-              {view === 'month' && <MonthGrid month={monthOf(selected)} today={today} selected={selected} onSelect={setSelected} />}
-              {view === 'day' && <DayDetail date={selected} today={today} minute={minute} />}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            key={`${view}-${view === 'day' ? selected : pageKey}`}
+            initial={{ opacity: 0, x: dir * 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+          >
+            {view === 'week' && (
+              <WeekGrid
+                start={weekStart(selected)}
+                today={today}
+                minute={minute}
+                selected={selected}
+                onSelect={(d) => {
+                  setSelected(d)
+                  if (!tablet) setView('day')
+                }}
+              />
+            )}
+            {view === 'month' && <MonthGrid month={monthOf(selected)} today={today} selected={selected} onSelect={setSelected} />}
+            {view === 'day' && <DayDetail date={selected} today={today} minute={minute} />}
+          </motion.div>
         </div>
 
         {view !== 'day' && (
@@ -145,6 +141,7 @@ export function Plan() {
 function WeekStrip({ start, selected, today, onSelect, onSwipe }: { start: string; selected: string; today: string; onSelect: (d: string) => void; onSwipe: (n: number) => void }) {
   const doc = useDoc()
   const dueDays = useMemo(() => new Set(live(doc.tasks).filter((t) => !t.doneAt && t.due).map((t) => t.due!)), [doc.tasks])
+  const swiped = useRef(false)
   return (
     <motion.div
       className="week-strip"
@@ -153,6 +150,9 @@ function WeekStrip({ start, selected, today, onSelect, onSwipe }: { start: strin
       dragElastic={0.2}
       dragDirectionLock
       style={{ touchAction: 'pan-y' }}
+      onPointerDownCapture={() => (swiped.current = false)}
+      onDragStart={() => (swiped.current = true)}
+      onClickCapture={(e) => swiped.current && (e.stopPropagation(), (swiped.current = false))}
       onDragEnd={(_, i) => {
         if (i.offset.x < -60) onSwipe(1)
         else if (i.offset.x > 60) onSwipe(-1)

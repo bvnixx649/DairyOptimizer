@@ -3,7 +3,6 @@ import { ArrowUpRight, CalendarPlus, CircleCheckBig, MapPin, Plus, Settings2 } f
 import { useMemo, type CSSProperties } from 'react'
 import { Empty } from '../../components/Empty'
 import { Page } from '../../components/Page'
-import { LogoMark } from '../../components/Logo'
 import { Ring } from '../../components/Ring'
 import { agendaFor, freeSlots, roundUp5, type AgendaItem } from '../../lib/agenda'
 import { addDays, DAY_NAME, durationText, mins, shortDate, weekday } from '../../lib/date'
@@ -62,8 +61,7 @@ export function Today() {
   return (
     <Page
       title="วันนี้"
-      sub={`${DAY_NAME[weekday(today)]} ${shortDate(today)}`}
-      left={<LogoMark size={24} />}
+      kicker={`${DAY_NAME[weekday(today)]} ${shortDate(today)}`}
       glow
       right={
         <>

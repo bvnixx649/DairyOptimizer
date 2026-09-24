@@ -84,9 +84,9 @@ export function PinSheet({ purpose, then }: { purpose: 'unlock' | 'set'; then?: 
           ))}
         </motion.div>
         <div className="keypad pin-pad">
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'back'].map((k, i) =>
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'back'].map((k) =>
             k === '' ? (
-              <span key={i} />
+              <span key="blank" />
             ) : (
               <button
                 key={k}

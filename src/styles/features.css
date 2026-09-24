@@ -1086,6 +1086,28 @@
   cursor: default;
 }
 
+/* Phones: the habit name gets its own line above the seven days. */
+@media (max-width: 599px) {
+  .wt-row {
+    grid-template-columns: repeat(7, 1fr);
+    row-gap: 0;
+    padding-bottom: 4px;
+  }
+  .wt-row > .wt-name,
+  .wt-head > span:first-child {
+    grid-column: 1 / -1;
+  }
+  .wt-head > span:first-child {
+    display: none;
+  }
+  .wt-name {
+    padding: 10px 2px 2px;
+  }
+  .wt-cell {
+    height: 38px;
+  }
+}
+
 .habit-hero {
   display: grid;
   justify-items: center;
@@ -1620,4 +1642,40 @@
 
 .import-card {
   margin-top: 10px;
+}
+
+/* ---------- Narrow screens / 200% zoom ---------- */
+
+.today-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.today-grid > *,
+.ws-day,
+.tl-body,
+.tl-gap-btn {
+  min-width: 0;
+}
+
+.week-strip {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(2px, 1.6vw, 6px);
+}
+
+@media (max-width: 320px) {
+  .tl-item,
+  .tl-gap,
+  .tl-now {
+    grid-template-columns: 40px 30px minmax(0, 1fr) auto;
+    column-gap: 8px;
+  }
+  .tl-pill {
+    width: 30px;
+  }
+  .tl-pill svg {
+    width: 15px;
+  }
+  .ws-num {
+    font-size: 15px;
+  }
 }

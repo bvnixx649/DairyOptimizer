@@ -22,7 +22,9 @@ const THRESHOLD = 88
 export function SwipeRow({ children, right, left }: Props) {
   const x = useMotionValue(0)
   const armed = useRef<'l' | 'r' | null>(null)
-  const bg = useTransform(x, (v) => (v > 0 ? right?.color : left?.color) ?? 'transparent')
+  // The pointer-up that ends a swipe must not also count as a tap on the row.
+  const swiped = useRef(false)
+  const bg = useTransform(x, (v) => (v > 0 ? right?.color : v < 0 ? left?.color : undefined) ?? 'transparent')
   const rightScale = useTransform(x, [0, THRESHOLD], [0.6, 1])
   const leftScale = useTransform(x, [-THRESHOLD, 0], [1, 0.6])
   const rightOpacity = useTransform(x, [0, 40], [0, 1])
@@ -48,6 +50,14 @@ export function SwipeRow({ children, right, left }: Props) {
         dragConstraints={{ left: left ? -160 : 0, right: right ? 160 : 0 }}
         dragElastic={0.12}
         dragSnapToOrigin={false}
+        onPointerDownCapture={() => (swiped.current = false)}
+        onDragStart={() => (swiped.current = true)}
+        onClickCapture={(e) => {
+          if (!swiped.current) return
+          e.stopPropagation()
+          e.preventDefault()
+          swiped.current = false
+        }}
         onDrag={(_, info) => {
           const next = info.offset.x > THRESHOLD ? 'r' : info.offset.x < -THRESHOLD ? 'l' : null
           if (next && next !== armed.current) tick(10)

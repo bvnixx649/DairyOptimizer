@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, MotionConfig } from 'motion/react'
+import { motion, MotionConfig } from 'motion/react'
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { Rail, TabBar } from './components/Nav'
 import { Toast } from './components/Toast'
@@ -72,17 +72,10 @@ export function App() {
         <Rail />
         <main className="main">
           {storageError && <div className="storage-warn">บันทึกลงเครื่องไม่ได้ — ส่งออกข้อมูลสำรองไว้ก่อน</div>}
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={tab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, transition: { duration: 0.08 } }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Page />
-            </motion.div>
-          </AnimatePresence>
+          {/* Enter-only transition: the old page unmounts at once, so it can never linger behind the new one. */}
+          <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+            <Page />
+          </motion.div>
         </main>
       </div>
       <TabBar />

@@ -20,7 +20,8 @@ function Counter({ value }: { value: number }) {
   const mv = useMotionValue(value)
   const text = useTransform(mv, (v) => baht(Math.round(v)))
   useEffect(() => {
-    const c = animate(mv, value, { type: 'spring', stiffness: 90, damping: 20 })
+    // A tween lands exactly on the target; a spring can rest a satang short.
+    const c = animate(mv, value, { duration: 0.7, ease: [0.22, 1, 0.36, 1] })
     return () => c.stop()
   }, [mv, value])
   return <motion.span>{text}</motion.span>

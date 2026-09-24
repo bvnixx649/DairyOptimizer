@@ -13,7 +13,8 @@ import { startAutoSync } from './store/sync'
 registerSW({ immediate: true })
 startAutoSync()
 
-if (import.meta.env.DEV) void import('./store/store').then((m) => Object.assign(window, { __store: m.useStore }))
+if (import.meta.env.DEV)
+  void Promise.all([import('./store/store'), import('./store/sync')]).then(([s, y]) => Object.assign(window, { __store: s.useStore, __sync: y }))
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -29,12 +29,6 @@
   }
 }
 
-@media (min-width: 768px) {
-  .topbar > .logo-mark {
-    display: none;
-  }
-}
-
 /* ---------- Today ---------- */
 
 .today-grid {

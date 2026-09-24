@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 interface Props {
   title: string
   sub?: ReactNode
-  left?: ReactNode
+  /** Small line at the top-left (e.g. today's date); hides once the compact title takes over. */
+  kicker?: ReactNode
   right?: ReactNode
   aside?: ReactNode
   glow?: boolean
@@ -11,7 +12,7 @@ interface Props {
 }
 
 /** Large title that hands over to a compact blurred bar once scrolled past. */
-export function Page({ title, sub, left, right, aside, glow, children }: Props) {
+export function Page({ title, sub, kicker, right, aside, glow, children }: Props) {
   const titleRef = useRef<HTMLDivElement>(null)
   const [scrolled, setScrolled] = useState(false)
 
@@ -27,7 +28,7 @@ export function Page({ title, sub, left, right, aside, glow, children }: Props) 
     <div className="page">
       {glow && <div className="page-glow" aria-hidden="true" />}
       <header className={`topbar${scrolled ? ' scrolled' : ''}`}>
-        {left}
+        {kicker && <span className="topbar-kicker">{kicker}</span>}
         <div className="spacer" />
         {right}
         <div className="topbar-title" aria-hidden="true">

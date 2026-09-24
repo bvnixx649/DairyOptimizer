@@ -37,6 +37,8 @@ npm run icons    # สร้างไอคอนแอปใหม่จาก 
 npm run deploy   # test + build แล้วอัปขึ้น branch gh-pages (GitHub Pages)
 ```
 
+ทดสอบบนเบราว์เซอร์จริง (Playwright, เปิด `npm run dev` ไว้ก่อน): `node e2e/flows.cjs`, `node e2e/sync.cjs` (ซิงก์สองเครื่องกับ GitHub API จำลอง), `node e2e/swipe.cjs`
+
 ### โครงสร้าง
 
 | ที่ | อะไร |

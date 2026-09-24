@@ -139,7 +139,7 @@ function WeekTable({ today }: { today: string }) {
               const on = done.has(d)
               const sched = isScheduled(h, d)
               const future = d > today
-              const state = on ? 'on' : future ? (sched ? 'plan' : 'off') : sched && d < today && d >= h.createdAt ? 'miss' : 'off'
+              const state = on ? 'on' : future || d === today ? (sched ? 'plan' : 'off') : sched && d >= h.createdAt ? 'miss' : 'off'
               return (
                 <button
                   key={d}
