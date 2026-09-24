@@ -2,11 +2,12 @@
 // Uses a throwaway index so the working tree and main branch are untouched.
 import { execSync } from 'node:child_process'
 import { rmSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 const sh = (cmd, env = {}) => execSync(cmd, { stdio: ['ignore', 'pipe', 'inherit'], env: { ...process.env, ...env } }).toString().trim()
 
 execSync('npm test && npm run build', { stdio: 'inherit' })
-const index = '.git/deploy-index'
+const index = resolve('.git/deploy-index')
 rmSync(index, { force: true })
 const env = { GIT_INDEX_FILE: index }
 sh('git --work-tree=dist add -A .', env)
